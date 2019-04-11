@@ -2,38 +2,47 @@ import Js2atObserver from './polyfills/js2at-observer.js';
 import Js2atUniqueIdManager from './polyfills/js2at-unique-id-manager.js';
 
 export default function js2AtDemo(Js2atRequest) {
-  console.log(Js2atUniqueIdManager);
-
   const kFetchAllRequestType = new URL('http://js2at.org/schema/fetchAll.json');
   const fetchRequestObserver = new Js2atObserver(kFetchAllRequestType, fetchAll, cancelFetchAll);
   fetchRequestObserver.observe(document);
 
   function fetchAll(request) {
     const detail = request.detail;
-    const custom = detail.custom;
-    const responseForMessageId = detail.messageId;
-    if (!custom || custom.role !== 'heading') {
+    if (!detail || detail.role !== 'heading') {
       // TODO programmatic error codes?
       request.error({ error : 'Only headings handled'});
       return;
     }
 
-    const headings = document.querySelector('h1');
-    const objectsResult = {};
-    for (let index = 0; index < headings.length; index ++) {
-      const heading = headings[index];
+    // Use timeout to simulate what an async response may look like
+    fetchAll.timeout = setTimeout(respond, 50);
+
+    function respond() {
+      const headings = document.querySelectorAll('h1');
+      const objects = [];
+      for (let index = 0; index < headings.length; index ++) {
+        const heading = headings[index];
+        objects.push({
+          role: 'heading',
+          name: heading.innerText,
+          uid: Js2atUniqueIdManager.getOrCreateUid(heading)
+        });
+      }
+
       objects.push({
         role: 'heading',
-        name: heading.innerText,
-        uid: Js2atUniqueIdManager.getOrCreateUid(heading)
+        name: 'An extra fake unloaded heading',
+        uid: Js2atUniqueIdManager.createUid()
       });
-    }
+      console.log(request);
 
-    request.complete(objectsResult);
+      request.complete({ objects });
+    }
   }
 
-  function cancelFetchAll(request) {
-    console.log('cancelled');
+  function cancelFetchAll(request, isTimeout) {
+    clearTimeout(fetchAll.timeout);
+    console.log('cancelled, from timeout? ', isTimeout);
   }
 }
 

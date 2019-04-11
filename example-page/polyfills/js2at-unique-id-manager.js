@@ -44,7 +44,7 @@ class Js2atUniqueIdManager {
   getOrCreateUid(target) {
     const uid = this.getUid(target);
     if (uid)
-      return uid;
+      return uid.toString();
 
     const newUid = this.createUid();
     this.add(target, newUid);
@@ -52,7 +52,8 @@ class Js2atUniqueIdManager {
   }
 
   createUid() {
-    return ++ this.counter;
+    ++ this.counter;
+    return this.counter.toString();
   }
 }
 

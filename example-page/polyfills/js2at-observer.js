@@ -17,24 +17,25 @@ export default class Js2atObserver {
 
     this.onRequest = onRequest;
 
-    this.delegate = this.createDelegate(this.type, onRequest, onCancel);
-  }
+    this.onCancel = onCancel;
 
-  observe(eventTarget) {
-    this.delegate.observe(eventTarget);
-  }
+    const delegate = this.createDelegate(this.type, onRequest, onCancel);
+    this.observe = (eventTarget) => {
+      delegate.observe(eventTarget);
+    };
 
-  unobserve(eventTarget) {
-    this.delegate.unobserve(eventTarget);
-  }
+    this.unobserve = (eventTarget) => {
+      delegate.unobserve(eventTarget);
+    };
 
-  disconnect() {
-    this.delegate.disconnect(this.type);
-    delete this.delegate;
-  }
+    this.disconnect = () => {
+      delegate.disconnect();
+    };
 
-  takeRecords(callback) {
-    this.delegate.takeRecords(this.onRequest);
+    this.takeRecords = (callback) => {
+      // Not very useful at the moment. Should we keep?
+      callback([]);
+    }
   }
 }
 

@@ -19,14 +19,13 @@ export default class Js2atRequest {
         this.sendOneImpl(detail);
       };
     }
-    this.complete = (detail) => {  // detail is optional.
+    this.complete = (detail) => {  // detail is optifonal.
       if (this.isComplete)
         return;
-      this.sendOneImpl(detail);
-      this.finishImpl();
+      this.completeImpl(detail);
       this.isComplete = true;
     };
-    this.errorCallback = (errorDetail) => {  // errorDetail is required.
+    this.error = (errorDetail) => {  // errorDetail is required.
       if (!errorDetail)
         throw new Error('No errorDetail parameter provided');
       this.errorImpl(errorDetail);

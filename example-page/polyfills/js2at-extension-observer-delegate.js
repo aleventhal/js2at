@@ -7,32 +7,44 @@ export default class Js2atObserverDelegate {
 
   // Connect to automation server so that we can listen to events
   constructor(requestType, onRequest, onCancel) {
-    this.onMessage = (event) => {
-      const requestId = event.requestId;
+    this.onMessage = (request) => {
+      // Request received from browser extension.
+      console.log('Content onMessage!', request);
+      const requestId = request.requestId;
       if (!requestId)
         throw new Error('Request received without request id');
-      if (event.cancel) {
+      if (request.cancel) {
+        console.log('Js2at ' + request.type + ' request has been cancelled');
         this.complete(requestId, true);
         return;
       }
-      if (event.timeout) {
-        if (!Number.IsInteger(event.timeout) || event.timeout <= 0)
+      if (request.timeout) {
+        if (!Number.isInteger(request.timeout) || request.timeout <= 0)
           throw new Error('Illegal timeout. Must be positive integer (ms).')
-        this.timeout = setTimeout(event.timeout, this.cancel);
+        this.timeout = setTimeout(
+          () => {
+            this.complete(requestId, true, true);
+          },
+          request.timeout
+        );
       }
 
-      const target = Js2atUniqueIdManager.getTarget(event.targetUid);
-      if (!target || !this.ports)
+      const target = Js2atUniqueIdManager.getTarget(request.targetUid);
+      if (!target) {
+        console.error('Js2at target not found');
         return;
+      }
+      if (!this.ports) {
+        throw new Error('Js2at disconnected but still receiving messages');
+      }
       const js2atHandler = this;
       const js2atRequest = new Js2atRequest({
         type: js2atHandler.type,
         requestId,
-        targetUid: event.targetUid,
-        detail: event.detail,
-        multiSend: event.multiSend,
+        targetUid: request.targetUid,
+        detail: request.detail,
+        multiSend: request.multiSend,
         sendOneImpl: (detail) => {
-          console.assert(event.multiSend);
           if (!js2atHandler.pendingRequests.has(requestId))
             return;
 
@@ -41,30 +53,32 @@ export default class Js2atObserverDelegate {
             return;
 
           port.postMessage({
-            isComplete: false,
+            isClosed: false,
             responseForRequestId: requestId,
             detail
           });
         },
         completeImpl: (detail) => {
-          if (js2atHandler.pendingRequests.complete(requestId)) {
+          if (js2atHandler.complete(requestId)) {
             const port = js2atHandler.ports.get(target);
+            console.log(port);
             if (!port)
               return;
+            console.log('Sending detail', detail);
             port.postMessage({
-              isComplete: true,
+              isClosed: true,
               responseForRequestId: requestId,
               detail
             });
           }
         },
         errorImpl: (errorDetail) => {
-          if (js2atHandler.complete(this.requestId)) {
+          if (js2atHandler.complete(requestId)) {
             const port = js2atHandler.ports.get(target);
             if (!port)
               return;
             port.postMessage({
-              isComplete: true,
+              isClosed: true,
               responseForRequestId: requestId,
               detail: errorDetail
             });
@@ -72,26 +86,29 @@ export default class Js2atObserverDelegate {
         }
       });
       js2atHandler.pendingRequests.set(js2atRequest.requestId, js2atRequest);
+      this.onRequest(js2atRequest);
     };
 
     this.requestType = requestType;
     this.onRequest = onRequest;
+    this.onCancel = onCancel;
     this.ports = new WeakMap(); // Map from uuid to port
     // Keep a map of request ids to requests, and hold a strong reference to
     // the requests so that they don't go away before being completed.
     this.pendingRequests = new Map();
   }
 
-  complete(requestId, isCancelled) {
-    const request = pendingRequests.get(requestId);
+  complete(requestId, isCancelled, isCancelledFromTimeout) {
+    const request = this.pendingRequests.get(requestId);
     if (!request)
       return false;
-    request.complete = true;
-    if (isCancelled && request.onCancel)
-      request.onCancel();
+    request.isClosed = true;
+    if (isCancelled && this.onCancel) {
+      this.onCancel(requestId, Boolean(isCancelledFromTimeout));
+    }
     if (request.timeout)
       clearTimeout(request.timeout);
-    js2atHandler.pendingRequests.remove(requestId);
+    this.pendingRequests.delete(requestId);
     return true;
   }
 
@@ -129,11 +146,6 @@ export default class Js2atObserverDelegate {
     }
     delete this.ports;
     delete this.pendingRequests;
-  }
-
-  takeRecords() {
-    // TODO aren't we always up-to-date in this model?
-    this.onRequest([]);
   }
 }
 
