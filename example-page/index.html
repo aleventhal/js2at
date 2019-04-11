@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Js2at demo page</title>
+<style>
+  body {
+    font-family: sans-serif;
+    background-color: #fffff9;
+    max-width: 100ch;
+    margin-left: calc(max(0, 50vw - 50ch));
+  }
+  th, td {
+    border-top: 1px solid black;
+    border-left: 1px solid black;
+    padding: 2px;
+  }
+  table {
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+  }
+</style>
+</head>
+<body>
+<h1>Js2at demo page</h1>
+<p>Js2at allows direct communications between a web page and an
+assistive technology, using a JSON message and response system.</p>
+
+<p>This page simulates a document that is only partially loaded. More headings will be exposed to the AT than what exist on the DOM, when the AT sends the fetchAll message with role = heading. The last heading sent is called 'Magical heading that only exists in the ether'.</p>
+<h1>Demo types<span id="demo-type-loaded"></span></h1>
+<ul>
+  <li><a href="?polyfill=none">Use built-in browser support (TBD)</a></li>
+  <li><a href="?polyfill=input">Use hidden input polyfill (TBD, should work on Chrome Windows, IE)</a></li>
+  <li><a href="?polyfill=extension">Use browser extension to polyfill (works on Chrome, Firefox, maybe Edge)</a></li>
+</ul>
+
+<h1>Browser compatibility notes for hidden input polyfill</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Browser</th>
+      <th>Fires events on aria-hidden</th>
+      <th>Provides id of object</th>
+      <th>Value setting supported</th>
+      <th>Other</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Chrome 72+ on Windows</th>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th scope="row">Firefox 63+ on Windows</th>
+      <td>No (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1510347">bug</a>)</td>
+      <td>Yes</td>
+      <td>No (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1221256">bug</a>)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th scope="row">IE 11</th>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes, but sets focus</td>
+      <td>Need to use IE DOM to get ID, or object by ID</td>
+    </tr>
+    <tr>
+      <th scope="row">Edge 41</th>
+      <td>?</td>
+      <td>?</td>
+      <td>?</td>
+      <td>TODO: try using UIA</th>
+    </tr>
+    <tr>
+      <th scope="row">Chrome 72+ on Mac</th>
+      <td>Yes</td>
+      <td>?</td>
+      <td>?</td>
+      <td>Value changes on onfocused inputs are unfortunately read by VoiceOver</td>
+    </tr>
+    <tr>
+      <th scope="row">Safari on Mac</th>
+      <td>Yes</td>
+      <td>?</td>
+      <td>?</td>
+      <td>Value changes on onfocused inputs are unfortunately read by VoiceOver</td>
+    </tr>
+  </tbody>
+</table>
+<script>
+(function initPolyfillIfNecessary() {
+  if (document.location.search == '?polyfill=none') {
+    document.getElementById('demo-type-loaded').innerText = ' (built-in browser support)';
+    initDemo('./demo.js'); // TBD: use browser implementatin.
+  } else if (document.location.search == '?polyfill=input') {
+    document.getElementById('demo-type-loaded').innerText = ' (input polyfill loaded)';
+    initDemoVia('./js2at-polyfill-via-input-polyfill.js');
+  } else if (document.location.search == '?polyfill=extension') {
+    document.getElementById('demo-type-loaded').innerText = ' (extension polyfill loaded)';
+    initDemoVia('./js2at-demo-via-extension-polyfill.js');
+  }
+  function initDemoVia(name) {
+    const scriptElem = document.createElement('script');
+    scriptElem.src = name;
+    scriptElem.type = 'module';
+    document.querySelector('head').appendChild(scriptElem);
+  }
+})();
+</script>
+
+
+</html>
+

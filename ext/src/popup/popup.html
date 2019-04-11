@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Js2at Enhanced Accessibility Bridge</title>
+  <style>
+    button { white-space: nowrap; }
+  </style>
+  <!-- <script type="application/javascript" src="../browser-polyfill.js"></script> -->
+  <script type="application/javascript" src="./popup.js"></script>
+</head>
+<body>
+<h1>Simulate AT Requests</h1>
+<p>See JS console for some debugging messages on what is sent and received.</p>
+<p>
+  <button onclick="generateTestMessage('checkReady');">checkReady</button>
+  <button onclick="generateTestHeadingMessage();">fetchAll</button>
+  <button onclick="generateTestMessage('fetchAll');">fetchAll with undefined role</button>
+  <button onclick="generateMultipleTestMessages();">fetchAll (multiple bundled requests)</button>
+  <button onclick="generateTestMessage('dogChaseCat');">snoopDog (unhandled)</button>
+</p>
+
+</body>
+</html>

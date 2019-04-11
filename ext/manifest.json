@@ -1,0 +1,36 @@
+{
+  "name": "Js2at Enhanced Accessibility Bridge",
+  "version": "0.0.2",
+  "manifest_version": 2,
+  "default_locale": "en",
+  "description": "Enable assistive technologies and web content to communicate using prearranged patterns.",
+  "homepage_url": "https://github.com/aleventhal/js2at",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "default_locale": "en",
+  "browser_action": {
+    "default_icon": "icons/icon48.png",
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Js2at Enhanced Accessibility Bridge"
+  },
+  "background": {
+    "scripts": [
+      "src/bg/background.js"
+    ],
+    "persistent": true
+  },
+  "permissions": [
+   "nativeMessaging"
+  ],
+  "externally_connectable": {
+    "note-comment": "Contact project or send PR to have your domain added (the communication mechanism does not allow more general wildcards)",
+    "matches": [
+      "*://*.google.com/*",
+      "*://localhost:*/*",
+      "*://raw.githack.com/*"
+    ]
+  }
+}
