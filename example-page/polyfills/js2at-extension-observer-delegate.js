@@ -2,6 +2,11 @@
 import Js2atUniqueIdManager from './js2at-unique-id-manager.js';
 import Js2atRequest from './js2at-request.js';
 
+const kExtensionId = 'hopjidpebkocjhmmhkjmgblipnonklin';
+
+// Observer for one type of js2at message, may be used to listen to the same
+// request type on multiple targets.
+
 export default class Js2atObserverDelegate {
   // Promise failure handling
 
@@ -9,7 +14,6 @@ export default class Js2atObserverDelegate {
   constructor(requestType, onRequest, onCancel) {
     this.onMessage = (request) => {
       // Request received from browser extension.
-      console.log('Content onMessage!', request);
       const requestId = request.requestId;
       if (!requestId)
         throw new Error('Request received without request id');
@@ -61,10 +65,8 @@ export default class Js2atObserverDelegate {
         completeImpl: (detail) => {
           if (js2atHandler.complete(requestId)) {
             const port = js2atHandler.ports.get(target);
-            console.log(port);
             if (!port)
               return;
-            console.log('Sending detail', detail);
             port.postMessage({
               isClosed: true,
               responseForRequestId: requestId,
@@ -89,7 +91,7 @@ export default class Js2atObserverDelegate {
       this.onRequest(js2atRequest);
     };
 
-    this.requestType = requestType;
+    this.type = requestType;
     this.onRequest = onRequest;
     this.onCancel = onCancel;
     this.ports = new WeakMap(); // Map from uuid to port
@@ -118,16 +120,22 @@ export default class Js2atObserverDelegate {
 
     let port = this.ports.get(eventTarget);
     if (!port) {
-      const uuid = Js2atUniqueIdManager.getOrCreateUid(eventTarget);
+      const uid = Js2atUniqueIdManager.getOrCreateUid(eventTarget);
 
-      port = chrome.runtime.connect( 'hopjidpebkocjhmmhkjmgblipnonklin', {
-        name: 'js2at::' + this.requestType + '::' + uuid
+      port = chrome.runtime.connect( kExtensionId, {
+        name: 'js2at::' + this.type + '::' + uid
       });
-      if (chrome.runtime.lastError || !port) {
-        console.error(chrome.runtime.lastError || 'No port created');
+      if (chrome.runtime.lastError ) {
+        console.error(chrome.runtime.lastError);
         return;
       }
+      console.assert(port);
       this.ports.set(eventTarget, port);
+      port.onDisconnect.addListener((port) => {
+        // Port disconnected by extension.
+        const targetUid = port.name.split('::')[2];
+        port.delete(Js2atUniqueIdManager.getTarget(targetUid));
+      });
     }
     port.onMessage.addListener(this.onMessage);
   }
