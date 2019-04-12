@@ -29,6 +29,7 @@ chrome.runtime.onConnectExternal.addListener((port) => {
       'role': 'heading'
     }
   );
+  connectNative();
 });
 
 function sendContentRequest(type, detail) {
@@ -47,6 +48,8 @@ function sendContentRequest(type, detail) {
 
 function onPortMessage(message) {
   console.log('Message received!', message);
+  sendNativeMessage(message);
+
 }
 
 function onPortDisconnect(port) {

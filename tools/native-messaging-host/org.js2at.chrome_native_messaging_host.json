@@ -1,0 +1,9 @@
+{
+  "name": "org.js2at.chrome_native_messaging_host",
+  "description": "Js2at Chrome Native Messaging API Host",
+  "path": "HOST_PATH",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://hopjidpebkocjhmmhkjmgblipnonklin/"
+  ]
+}

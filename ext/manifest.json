@@ -18,6 +18,7 @@
   },
   "background": {
     "scripts": [
+      "src/bg/native-messaging.js",
       "src/bg/background.js"
     ],
     "persistent": true
