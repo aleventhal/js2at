@@ -9,6 +9,7 @@ function onNativeMessage(message) {
   if (!nativePort)
     return;
   console.log(message)
+  sendNativeMessage({dogs: 1});
 }
 
 function onNativeMessagingDisconnected() {

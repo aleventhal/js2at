@@ -2,7 +2,7 @@
 import Js2atUniqueIdManager from './js2at-unique-id-manager.js';
 import Js2atRequest from './js2at-request.js';
 
-const kExtensionId = 'hopjidpebkocjhmmhkjmgblipnonklin';
+const kExtensionId = 'aicdcahgpgdlplnfnbncfphkdpnbof';
 
 // TODO In Firefox it is not possible to use the native messaging API from a
 // page script, so it will be necessary to share objects with a content script.
