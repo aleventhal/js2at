@@ -4,6 +4,11 @@ import Js2atRequest from './js2at-request.js';
 
 const kExtensionId = 'hopjidpebkocjhmmhkjmgblipnonklin';
 
+// TODO In Firefox it is not possible to use the native messaging API from a
+// page script, so it will be necessary to share objects with a content script.
+// See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+// Or use CustomEvent like in the use-custom-event branch.
+
 // Observer for one type of js2at message, may be used to listen to the same
 // request type on multiple targets.
 

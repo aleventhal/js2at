@@ -28,11 +28,12 @@ assistive technology, using a JSON message and response system.</p>
 <p>This page simulates a document that is only partially loaded. More headings will be exposed to the AT than what exist on the DOM, when the AT sends the fetchAll message with role = heading. The last heading sent is called 'Magical heading that only exists in the ether'.</p>
 <h1>Demo types<span id="demo-type-loaded"></span></h1>
 <ul>
-  <li><a href="?polyfill=none">Use built-in browser support (TBD)</a></li>
+  <li><a href="?polyfill=extension">Use browser extension to polyfill (Chrome works; Firefox, Edge TBD)</a></li>
   <li><a href="?polyfill=input">Use hidden input polyfill (TBD, should work on Chrome Windows, IE)</a></li>
-  <li><a href="?polyfill=extension">Use browser extension to polyfill (works on Chrome, Firefox, maybe Edge)</a></li>
+  <li><a href="?polyfill=none">Use built-in browser support (TBD)</a></li>
 </ul>
 
+<!--
 <h1>Browser compatibility notes for hidden input polyfill</h1>
 <table>
   <thead>
@@ -89,6 +90,7 @@ assistive technology, using a JSON message and response system.</p>
     </tr>
   </tbody>
 </table>
+-->
 <script>
 (function initPolyfillIfNecessary() {
   if (document.location.search == '?polyfill=none') {

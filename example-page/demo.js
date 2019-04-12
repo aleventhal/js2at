@@ -31,7 +31,7 @@ export default function js2AtDemo(Js2atRequest) {
 
       objects.push({
         role: 'heading',
-        name: 'An extra fake unloaded heading',
+        name: 'Magical heading that only exists in the ether',
         uid: Js2atUniqueIdManager.createUid()
       });
       console.log(request);
