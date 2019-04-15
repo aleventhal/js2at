@@ -10,12 +10,15 @@ import struct
 import sys
 import threading
 import Queue
+import json
 
 try:
   import Tkinter
   import tkMessageBox
 except ImportError:
   Tkinter = None
+
+requestId = 0
 
 # On Windows, the default I/O mode is O_TEXT. Set this to O_BINARY
 # to avoid unwanted modifications of the input/output streams.
@@ -88,7 +91,17 @@ if Tkinter:
       self.after(100, self.processMessages)
 
     def onSend(self):
-      text = '{"text": "' + self.messageContent.get() + '"}'
+      ++ requestId
+      request = {
+        'requestType': 'http://js2at.org/schema/fetchAll.json',
+        'requestId': str(requestId),
+        'targetUid': '1',
+        'detail': {
+          'role': 'heading'
+        }
+      }
+
+      text = json.dumps(request);
       self.log('Sending %s' % text)
       try:
         send_message(text)

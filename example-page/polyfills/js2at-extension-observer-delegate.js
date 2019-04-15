@@ -2,7 +2,7 @@
 import Js2atUniqueIdManager from './js2at-unique-id-manager.js';
 import Js2atRequest from './js2at-request.js';
 
-const kExtensionId = 'aicdcahgpgdlplnfnbncfphkdpnbofih';
+const kExtensionId = 'hopjidpebkocjhmmhkjmgblipnonklin';
 
 // TODO In Firefox it is not possible to use the native messaging API from a
 // page script, so it will be necessary to share objects with a content script.
@@ -139,7 +139,7 @@ export default class Js2atObserverDelegate {
       port.onDisconnect.addListener((port) => {
         // Port disconnected by extension.
         const targetUid = port.name.split('::')[2];
-        port.delete(Js2atUniqueIdManager.getTarget(targetUid));
+        this.ports.delete(Js2atUniqueIdManager.getTarget(targetUid));
       });
     }
     port.onMessage.addListener(this.onMessage);

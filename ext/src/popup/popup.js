@@ -32,17 +32,17 @@ function simulateATFiringRequest(data) {
   outSlot.dispatchEvent(event);
 }
 
-function createTestRequestData(requestType, custom) {
+function createTestRequestData(requestType, detail) {
   createTestRequestData.requestId = createTestRequestData.requestId ? createTestRequestData.requestId + 1 : 1;
   return {
     requestId: createTestRequestData.requestId + kTestATRequestIdSuffix,
     requestType: 'http://js2at.org/schema/' + requestType + '.json',
-    custom: custom
+    detail: detail
   };
 }
 
-function generateTestRequest(requestType, custom) {
-  const data = createTestRequestData(requestType, custom);
+function generateTestRequest(requestType, detail) {
+  const data = createTestRequestData(requestType, detail);
   simulateATFiringRequest([ data ]);
 }
 

@@ -5,13 +5,6 @@ function sendNativeMessage(message) {
   nativePort.postMessage(message);
 }
 
-function onNativeMessage(message) {
-  if (!nativePort)
-    return;
-  console.log(message)
-  sendNativeMessage({dogs: 1});
-}
-
 function onNativeMessagingDisconnected() {
   if (!nativePort)
     return;
@@ -20,18 +13,20 @@ function onNativeMessagingDisconnected() {
   nativePort = null;
 }
 
-function connectNative() {
+function ensureNativeConnection(onNativeMessageCallback) {
   if (nativePort) {
     console.log('Already connected');
-    return;
+    return true;
   }
   var hostName = "org.js2at.chrome_native_messaging_host";
   nativePort = chrome.runtime.connectNative(hostName);
-  if (nativePort) {
-    nativePort.onMessage.addListener(onNativeMessage);
-    nativePort.onDisconnect.addListener(onNativeMessagingDisconnected);
+  if (chrome.runtime.lastError) {
+    console.error(chrome.runtime.lastError);
+    return;
   }
-  return nativePort;
+  if (nativePort) {
+    nativePort.onMessage.addListener(onNativeMessageCallback);
+    nativePort.onDisconnect.addListener(onNativeMessagingDisconnected);
+    return true;
+  }
 }
-
-connectNative();

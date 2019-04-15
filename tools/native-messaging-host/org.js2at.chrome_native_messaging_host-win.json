@@ -4,6 +4,7 @@
   "path": "js2at-native-messaging-host.bat",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://aicdcahgpgdlplnfnbncfphkdpnbofih/"
+    "chrome-extension://aicdcahgpgdlplnfnbncfphkdpnbofih/",
+    "chrome-extension://hopjidpebkocjhmmhkjmgblipnonklin/"
   ]
 }
