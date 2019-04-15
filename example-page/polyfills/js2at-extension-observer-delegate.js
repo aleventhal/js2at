@@ -62,8 +62,8 @@ export default class Js2atObserverDelegate {
             return;
 
           port.postMessage({
-            isClosed: false,
             responseForRequestId: requestId,
+            isComplete: false,
             detail
           });
         },
@@ -73,8 +73,8 @@ export default class Js2atObserverDelegate {
             if (!port)
               return;
             port.postMessage({
-              isClosed: true,
               responseForRequestId: requestId,
+              isComplete: true,
               detail
             });
           }
@@ -85,8 +85,8 @@ export default class Js2atObserverDelegate {
             if (!port)
               return;
             port.postMessage({
-              isClosed: true,
               responseForRequestId: requestId,
+              isComplete: true,
               detail: errorDetail
             });
           }
@@ -109,7 +109,7 @@ export default class Js2atObserverDelegate {
     const request = this.pendingRequests.get(requestId);
     if (!request)
       return false;
-    request.isClosed = true;
+    request.isComplete = true;
     if (isCancelled && this.onCancel) {
       this.onCancel(requestId, Boolean(isCancelledFromTimeout));
     }
