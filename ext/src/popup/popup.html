@@ -3,21 +3,39 @@
 <head>
   <title>Js2at Enhanced Accessibility Bridge</title>
   <style>
-    button { white-space: nowrap; }
+    .item {
+      white-space: nowrap;
+      display: flex;
+      justify-content: space-between;
+    }
+    .item > :last-child {
+      margin-left: 15px;
+    }
+    select { text-align-last: right; }
+    option { direction: rtl; }
   </style>
   <!-- <script type="application/javascript" src="../browser-polyfill.js"></script> -->
   <script type="application/javascript" src="./popup.js"></script>
 </head>
 <body>
-<h1>Simulate AT Requests</h1>
-<p>See JS console for some debugging messages on what is sent and received.</p>
-<p>
-  <button onclick="generateTestMessage('checkReady');">checkReady</button>
-  <button onclick="generateTestHeadingMessage();">fetchAll</button>
-  <button onclick="generateTestMessage('fetchAll');">fetchAll with undefined role</button>
-  <button onclick="generateMultipleTestMessages();">fetchAll (multiple bundled requests)</button>
-  <button onclick="generateTestMessage('dogChaseCat');">snoopDog (unhandled)</button>
-</p>
+<h1>Js2at Accessibility Bridge</h1>
+<div class="item">
+  <label for="experimental">APIs allowed (TBD)</label>
+  <select size="1" id="experimental">
+    <option value="standard">Only W3C</option>
+    <option value="community">Github Js2at + W3C</option>
+    <option selected value="experimental">Include experimental</option>
+  </select>
+</div>
+
+<div class="item">
+  <label for="validation">Validation error handling (TBD)</label>
+  <select size="1" id="validation">
+      <option value="none">None</option>
+      <option selected value="log">Log error to console</option>
+      <option value="reject">Reject and log</option>
+  </select>
+</div>
 
 </body>
 </html>

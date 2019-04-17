@@ -123,6 +123,8 @@ def Main():
     read_thread_func(None)
     sys.exit(0)
 
+  send_message('Hello!');
+
   queue = Queue.Queue()
 
   main_window = NativeMessagingWindow(queue)

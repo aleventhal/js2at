@@ -102,7 +102,7 @@ function onPagePortDisconnect(port) {
   console.log('Port disconnected', observerInfo);
   const { requestType, targetUid } = observerInfo;
   delete pagePorts[requestType][targetUid];
-  if (ensureNativeConnection)
+  if (ensureNativeConnection())
     sendNativeMessage({
       observerRemoved: requestType,
       targetUid
