@@ -13,11 +13,8 @@ if [ "$(uname -s)" = "Darwin" ]; then
     TARGET_DIR="$HOME/Library/Application Support/Google/Chrome Canary/NativeMessagingHosts"
   fi
 else
-  if [ "$(whoami)" = "root" ]; then
-    TARGET_DIR="/etc/opt/chrome/native-messaging-hosts"
-  else
-    TARGET_DIR="$HOME/.config/google-chrome/NativeMessagingHosts"
-  fi
+  echo Canary on Linux is not supported
+  exit 1
 fi
 
 HOST_NAME=org.js2at.chrome_native_messaging_host
