@@ -10,9 +10,13 @@ supports the polyfill, and a web page that uses it.
 On Windows, run tools/native-messaging-host/install-host-win.bat
 Otherwise, run tools/native-messaging-host/install-host.sh
 
+The native messaging host installer does not yet support Firefox.
+
 2. Installing the extension
 
 The extension is under ext. Right now it just dumps to the background console.
+
+It is not yet compatible with Firefox, and Edge needs to be tested.
 
 3. Loading the web page
 
