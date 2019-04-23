@@ -93,15 +93,18 @@ assistive technology, using a JSON message and response system.</p>
 -->
 <script>
 (function initPolyfillIfNecessary() {
-  if (document.location.search == '?polyfill=none') {
+  const polyfill = document.location.search.match(/\?polyfill\=([a-z]+)/)[1];
+  if (polyfill === 'none') {
     document.getElementById('demo-type-loaded').innerText = ' (built-in browser support)';
     initDemo('./demo.js'); // TBD: use browser implementatin.
-  } else if (document.location.search == '?polyfill=input') {
+  } else if (polyfill === 'input') {
     document.getElementById('demo-type-loaded').innerText = ' (input polyfill loaded)';
     initDemoVia('./js2at-polyfill-via-input-polyfill.js');
-  } else if (document.location.search == '?polyfill=extension') {
+  } else if (polyfill === 'extension') {
     document.getElementById('demo-type-loaded').innerText = ' (extension polyfill loaded)';
     initDemoVia('./js2at-demo-via-extension-polyfill.js');
+  } else if (document.location.search) {
+    console.error('Illegal url parameter');
   }
   function initDemoVia(name) {
     const scriptElem = document.createElement('script');
