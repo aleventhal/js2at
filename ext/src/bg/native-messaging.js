@@ -1,13 +1,10 @@
 let nativePort;
 function sendNativeMessage(message) {
-  if (!nativePort)
-    return;
-  nativePort.postMessage(message);
+  if (ensureNativeConnection())
+    nativePort.postMessage(message);
 }
 
 function onNativeMessagingDisconnected() {
-  if (!nativePort)
-    return;
   if (chrome.runtime.lastError)
     console.log(chrome.runtime.lastError.message);
   nativePort = null;
@@ -15,7 +12,6 @@ function onNativeMessagingDisconnected() {
 
 function ensureNativeConnection(onNativeMessageCallback) {
   if (nativePort) {
-    console.log('Already connected');
     return true;
   }
   var hostName = "org.js2at.chrome_native_messaging_host";
@@ -25,6 +21,7 @@ function ensureNativeConnection(onNativeMessageCallback) {
     return;
   }
   if (nativePort) {
+    console.log('Native port connected', nativePort);
     nativePort.onMessage.addListener(onNativeMessageCallback);
     nativePort.onDisconnect.addListener(onNativeMessagingDisconnected);
     return true;

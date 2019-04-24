@@ -28,7 +28,7 @@ else
   fi
 fi
 
-HOST_NAME=corg.js2at.chrome_native_messaging_host
+HOST_NAME=org.js2at.chrome_native_messaging_host
 
 rm "$TARGET_DIR_CHROME/org.js2at.chrome_native_messaging_host.json"
 if [ "$(uname -s)" = "Darwin" ]; then

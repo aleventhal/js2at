@@ -42,7 +42,7 @@ fi
 cp "$DIR/$HOST_NAME.json" "$TARGET_DIR_CHROMIUM"
 
 # Update host path in the manifest.
-HOST_PATH=$DIR/js2at-native-messaging-host
+HOST_PATH=$DIR/js2at-native-messaging-host.py
 ESCAPED_HOST_PATH=${HOST_PATH////\\/}
 
 sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR_CHROME/$HOST_NAME.json"

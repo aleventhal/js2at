@@ -23,7 +23,7 @@ chrome.runtime.onConnectExternal.addListener((port) => {
     return;  // Not handled.
   // A new port has opened to listen to a single request type on a single
   // object.
-  console.log('Connected!', observerInfo);
+  console.log('Page connected a requestType + target', observerInfo);
   const { requestType, targetUid } = observerInfo;
   if (!pagePorts[requestType]) {
     pagePorts[requestType] = {};
@@ -39,14 +39,19 @@ chrome.runtime.onConnectExternal.addListener((port) => {
 });
 
 function onNativeMessage(request) {
+  console.log('Message received from AT', request);
+  // Handle special built-in requests (not a URL request Type).
+  if (request.ping)
+    return;
+
+  // Validate requestId.
+  console.assert(request.requestId, 'Request |requestId| required.');
+
   // Validate type.
   console.assert(request.requestType, 'Request |requestType| is required.');
   const url = new URL(request.requestType);  // Ensure parsable as URL.
   console.assert(url.pathname.endsWith('.json'),
     'Request |type| must be a URL that points to a JSON document, and has .json extension.');
-
-  // Validate requestId.
-  console.assert(request.requestId, 'Request |requestId| required.');
 
   // Validate targetUid.
   console.assert(request.targetUid), 'Request |targetUid| required.';
@@ -62,7 +67,7 @@ function onNativeMessage(request) {
   // Validate detail.
   // TODO Should be able to validate this against the schema specified by |type|.
   console.assert(request.detail && typeof request.detail === 'object',
-    'Request |detail| must be present and an object properties containing key/value pairs.');
+    'Request |detail| must be present and an object.');
 
   // Our page ports map needs to be storing per tab, or let each contentscript handle this.
   console.assert(pagePorts[request.requestType] && pagePorts[request.requestType][request.targetUid],
@@ -87,7 +92,7 @@ function parseObserverName(name) {
 }
 
 function onPageMessage(message) {
-  console.log('Message received!', message);
+  console.log('background.js --  onPageMessage', message);
   // TODO should we validate that this request exists and is open?
   console.assert(message.responseForRequestId);
   sendNativeMessage(message);
@@ -99,13 +104,12 @@ function onPagePortDisconnect(port) {
     return;  // Not handled.
   // A new port has opened to listen to a single request type on a single
   // object.
-  console.log('Port disconnected', observerInfo);
+  console.log('Page port disconnected', observerInfo);
   const { requestType, targetUid } = observerInfo;
   delete pagePorts[requestType][targetUid];
-  if (ensureNativeConnection())
-    sendNativeMessage({
-      observerRemoved: requestType,
-      targetUid
-    });
+  sendNativeMessage({
+    observerRemoved: requestType,
+    targetUid
+  });
 }
 
