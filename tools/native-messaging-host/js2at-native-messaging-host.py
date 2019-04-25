@@ -20,7 +20,6 @@ if os.path.exists(LOGFILE):
   os.remove(LOGFILE)
 logging.basicConfig(filename=LOGFILE,level=logging.DEBUG)
 
-messages_from_browser_queue = Queue.Queue()
 messages_from_at_queue = Queue.Queue()
 
 # On Windows, the default I/O mode is O_TEXT. Set this to O_BINARY
@@ -35,37 +34,39 @@ def global_exception_hook(exc_type, exc_value, traceback):
     quit()
   else:
     logging.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback))
-    send_to_at('{ "js2at-native-messaging-host-error": "%s"}' % exc_type)
+    send_to_at(at_socket, '{ "js2at-native-messaging-host-error": "%s"}' % exc_type)
     sys.__excepthook__(exc_type, exc_value, traceback)
 
 # Thread that reads messages from the webapp.
-def read_browser_messages_thread_func(messages_from_browser_queue):
+def read_browser_messages_thread_func(at_socket):
+  logging.info('Begin listening for messages from browser')
   while 1:
-    # Read the message length (first 4 bytes).
-    message_length_bytes = sys.stdin.read(4)
-    # Unpack message length as 4 byte integer.
-    message_length = struct.unpack('i', message_length_bytes)[0]
-    # Read the text (JSON object) of the message.
-    message_text = sys.stdin.read(message_length).decode('utf-8')
+    try:
+      # Read the message length (first 4 bytes).
+      message_length_bytes = sys.stdin.read(4)
+      # Unpack message length as 4 byte integer.
+      message_length = struct.unpack('i', message_length_bytes)[0]
+      # Read the text (JSON object) of the message.
+      message_text = sys.stdin.read(message_length).decode('utf-8')
+      send_to_at(at_socket, message_text)
+      logging.info('Message from browser: %s' % message_text)  # Should be off by default.
 
-    logging.info('Message from browser: %s' % message)  # Should be off by default.
-
-    messages_from_browser_queue.put(message_text)
-
-    time.sleep(0.01)  # Necessary? Should it be longer?
+      time.sleep(0.01)  # Necessary? Should it be longer?
+    except ValueError as error:
+      print("Exception reading browser messages: %s" % error)
+      pass
 
 def read_at_messages_thread_func(at_socket, messages_from_at_queue):
   while 1:
-    at_socket.send_string('*ping*')  # Necessary otherwise cannot read messages.
-    at_message = at_socket.recv_string()
-    logging.info('Message from at: %s' % at_message)  # Should be off by default.
-    messages_from_at_queue.put(at_message)
-    time.sleep(0.01)  # Necessary?
-
-def process_browser_messages():
-  while not messages_from_browser_queue.empty():
-    browser_message = messages_from_browser_queue.get_nowait()
-    send_to_at(browser_message)
+    try:
+      at_socket.send_string('*ping*')  # Necessary otherwise cannot read messages.
+      at_message = at_socket.recv_string()
+      logging.info('Message from at: %s' % at_message)  # Should be off by default.
+      messages_from_at_queue.put(at_message)
+      time.sleep(0.01)  # Necessary?
+    except ValueError as error:
+      print("Exception reading AT messages: %s" % error)
+      pass
 
 def process_at_messages():
   while not messages_from_at_queue.empty():
@@ -80,7 +81,7 @@ def send_to_browser(message):
   sys.stdout.write(message)
   sys.stdout.flush()
 
-def send_to_at(message):
+def send_to_at(at_socket, message):
   if at_socket:
     logging.info('Send to at: %s' % message)    # Should be off by default.
     at_socket.send_string(message)
@@ -104,7 +105,7 @@ def Main(argv):
   at_socket = context.socket(zmq.PAIR)
   at_socket.bind(at_address)
 
-  receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func, args=(messages_from_browser_queue,))
+  receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func, args=(at_socket,))
   receive_browser_message_thread.daemon = True
   receive_browser_message_thread.start()
 
@@ -112,11 +113,10 @@ def Main(argv):
   receive_at_message_thread.daemon = True
   receive_at_message_thread.start()
 
-  send_to_at('*ping*')
+  send_to_at(at_socket, '*ping*')
   send_to_browser('{ "ping": true }')
 
   while 1:
-    process_browser_messages()
     process_at_messages()
     time.sleep(0.01)  # Necessary?
 
