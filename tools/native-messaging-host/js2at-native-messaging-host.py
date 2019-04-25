@@ -8,11 +8,21 @@ import threading
 import Queue
 import time
 import zmq
+import argparse
 
 messages_from_browser_queue = Queue.Queue()
 messages_from_at_queue = Queue.Queue()
-# Set up connection with AT
+
+# Get port number, use --port=[portnum] or will use default port.
+# Get port number, use --port=[portnum] or will use default port.
+parser = argparse.ArgumentParser()
+parser.add_argument('-p', '--port')
+args = parser.parse_args()
 port = '18325'
+if args.port:
+  port = args.port
+
+# Set up connection with AT
 at_address = 'tcp://*:%s' % port
 context = zmq.Context()
 at_socket = context.socket(zmq.PAIR)

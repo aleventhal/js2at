@@ -4,13 +4,22 @@ import zmq
 import sys
 import time
 import json
+import argparse
+
+requestId = 0
+
+# Get port number, use --port=[portnum] or will use default port.
+parser = argparse.ArgumentParser()
+parser.add_argument('-p', '--port')
+args = parser.parse_args()
+port = '18325'
+if args.port:
+  port = args.port
 
 # Setup connection with native messaging host.
-port = "18325"
 context = zmq.Context()
 socket = context.socket(zmq.PAIR)
 socket.connect("tcp://localhost:%s" % port)
-requestId = 0
 
 def get_request():
   global requestId
