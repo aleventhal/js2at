@@ -49,6 +49,7 @@ h                              Request all headings
 p                              Request all paragraphs
 z                              Request all zebras (will return error)
 """)
+print('Connected to port %s' % port)
 
 receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func)
 receive_browser_message_thread.daemon = True

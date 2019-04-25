@@ -1,3 +1,5 @@
+console.log('sendNativeMessage({ someObj }) will send a message to the ATs');
+
 let nativePort;
 function sendNativeMessage(message) {
   if (ensureNativeConnection())
