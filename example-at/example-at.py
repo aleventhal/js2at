@@ -12,7 +12,7 @@ requestId = 0
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--port')
 args = parser.parse_args()
-port = '18325'
+port = '18322'
 if args.port:
   port = args.port
 
@@ -34,6 +34,8 @@ def get_request():
   }
   return request
 
+socket.send_string('*ping*')  # Check to see if alive.
+
 while True:
   message_from_browser = socket.recv_string()
   print 'Incoming: %s' % message_from_browser
@@ -41,4 +43,4 @@ while True:
   request_text = json.dumps(request)
   print 'Outgoing: %s' % request_text
   socket.send_string(request_text)
-  time.sleep(0.01)  # Necessary? What should the value be?
+  time.sleep(1)  # Necessary? What should the value be?
