@@ -5,6 +5,7 @@ import sys
 import time
 import json
 
+# Setup connection with native messaging host.
 port = "18325"
 context = zmq.Context()
 socket = context.socket(zmq.PAIR)
@@ -31,4 +32,4 @@ while True:
   request_text = json.dumps(request)
   print 'Outgoing: %s' % request_text
   socket.send_string(request_text)
-  time.sleep(1)
+  time.sleep(0.01)  # Necessary? What should the value be?

@@ -26,7 +26,7 @@ if sys.platform == "win32":
   msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
 # Thread that reads messages from the webapp.
-def browser_message_thread_func(messages_from_browser_queue):
+def read_browser_messages_thread_func(messages_from_browser_queue):
   while 1:
     # Read the message length (first 4 bytes).
     message_length_bytes = sys.stdin.read(4)
@@ -37,12 +37,12 @@ def browser_message_thread_func(messages_from_browser_queue):
 
     messages_from_browser_queue.put(message_text)
 
-    time.sleep(0.01)  # Necessary?
+    time.sleep(0.01)  # Necessary? Should it be longer?
 
 
-def at_message_thread_func(at_socket, messages_from_at_queue):
+def read_at_messages_thread_func(at_socket, messages_from_at_queue):
   while 1:
-    at_socket.send_string('*ping*')  # Necessary otherwise cannot send message.
+    at_socket.send_string('*ping*')  # Necessary otherwise cannot read messages.
     at_message = at_socket.recv_string()
     messages_from_at_queue.put(at_message)
     time.sleep(0.01)  # Necessary?
@@ -72,11 +72,11 @@ def send_to_at(message):
   at_socket.send_string(message)
 
 def Main():
-  receive_browser_message_thread = threading.Thread(target=browser_message_thread_func, args=(messages_from_browser_queue,))
+  receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func, args=(messages_from_browser_queue,))
   receive_browser_message_thread.daemon = True
   receive_browser_message_thread.start()
 
-  receive_at_message_thread = threading.Thread(target=at_message_thread_func, args=(at_socket, messages_from_at_queue,))
+  receive_at_message_thread = threading.Thread(target=read_at_messages_thread_func, args=(at_socket, messages_from_at_queue,))
   receive_at_message_thread.daemon = True
   receive_at_message_thread.start()
 
