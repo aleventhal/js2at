@@ -13,18 +13,18 @@ requestId = 0
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--port')
 args = parser.parse_args()
-port = '18322'
+port = '18323'
 if args.port:
   port = args.port
 
 # Setup connection with native messaging host.
 context = zmq.Context()
 socket = context.socket(zmq.PAIR)
-socket.connect("tcp://localhost:%s" % port)
+socket.connect("tcp://127.0.0.1:%s" % port)
 
 def read_browser_messages_thread_func():
   while 1:
-    message_from_browser = socket.recv_string()
+    message_from_browser = socket.recv_string()  # flags=NOBLOCK ?
     print 'Incoming response: %s' % message_from_browser
 
 def get_role_request(role):
@@ -39,8 +39,6 @@ def get_role_request(role):
     }
   }
   return request
-
-socket.send_string('*ping*')  # Check to see if alive.
 
 print("""\
 Instructions, type any of the following and press Enter.
