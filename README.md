@@ -38,9 +38,10 @@ You do not have to run the native messaging host, the browser launches it.
 
 ## Debugging
 
-- Both the extension and web page will log their messages to the console.
+- Both the extension and web page will log their messages to their JS consoles.
 - The native messaging host will log to a file called
 js2at-native-messaging-host.log in the same directory as the messaging host.
+Alternatively, launch chrome from a terminal to view logging output there.
 - The example AT logs to stdout.
 
 ## The other polyfill
