@@ -59,7 +59,7 @@ def send_to_browser(message):
   sys.stdout.write(message)
   sys.stdout.flush()
 
-def Main(argv):
+def Main():
   at_socket = None
   # Set up global exception hook so we can get logs of errors.
   def global_exception_hook(exc_type, exc_value, traceback):
@@ -69,14 +69,14 @@ def Main(argv):
     sys.__excepthook__(exc_type, exc_value, traceback)
   sys.excepthook = global_exception_hook
 
-  logging.info('\n\nBegin js2at-native-messaging host, argv = %s' % argv)
+  logging.info('\n\nBegin js2at-native-messaging host')
   # Get port number, use --port=[portnum] or will use default port.
   parser = argparse.ArgumentParser()
   parser.add_argument('chrome-extension', nargs='?')
   parser.add_argument('--parent-window', type=int)
   parser.add_argument('--port', '-p')
   args = parser.parse_args()
-  port = '18323'
+  port = '18322'
   if args.port:
     port = args.port
 
@@ -95,20 +95,7 @@ def Main(argv):
   signal.signal(signal.SIGINT, signal_handler)
   at_socket = context.socket(zmq.PAIR)
   at_address = 'tcp://127.0.0.1:%s' % port
-  count = 0
-  while 1:
-    try:
-      at_socket.bind(at_address)
-      break
-    except zmq.error.ZMQError as e:
-      logging.info('Exception %s\nCould not connect to AT via port %s' % (e, port))
-      count = count + 1
-      if count < 50:     # Max tries.
-        logging.info('Try again %d', count)
-        time.sleep(0.1)
-        continue
-      raise  # Give up and re-raise exception for global handler.
-
+  at_socket.connect(at_address)
   logging.info('Connected to AT via port %s' % port)
 
   receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func)
@@ -134,10 +121,10 @@ def Main(argv):
         at_socket.send_string(browser_message)
         logging.info('Sent to at: %s' %  browser_message)    # Should be off by default.
       except zmq.error.Again:
-        # Resource wasn't ready so failed to send -- place back in queue.
+        # Resource wasn't ready so failed to send -- place back in deque.
         # Place on the left side that the message order is still correct once resource is free.
         messages_from_browser.appendleft(browser_message)
         pass
 
 if __name__ == '__main__':
-  Main(sys.argv)
+  Main()
