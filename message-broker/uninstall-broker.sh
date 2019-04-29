@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright 2013 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
 
 set -e
 
@@ -25,37 +28,11 @@ else
   fi
 fi
 
-HOST_NAME=org.js2at.chrome_native_messaging_host
+HOST_NAME=org.js2at.message_broker
 
-# Create directories to store native messaging host.
-mkdir -p "$TARGET_DIR_CHROME"
+rm "$TARGET_DIR_CHROME/$HOST_NAME.json"
 if [ "$(uname -s)" = "Darwin" ]; then
-  mkdir -p "$TARGET_DIR_CHROME_CANARY"
+  rm "$TARGET_DIR_CHROME_CANARY/$HOST_NAME.json"
 fi
-mkdir -p "$TARGET_DIR_CHROMIUM"
-
-# Copy native messaging host manifest.
-cp "$DIR/$HOST_NAME.json" "$TARGET_DIR_CHROME"
-if [ "$(uname -s)" = "Darwin" ]; then
-  cp "$DIR/$HOST_NAME.json" "$TARGET_DIR_CHROME_CANARY"
-fi
-cp "$DIR/$HOST_NAME.json" "$TARGET_DIR_CHROMIUM"
-
-# Update host path in the manifest.
-HOST_PATH=$DIR/js2at-native-messaging-host.py
-ESCAPED_HOST_PATH=${HOST_PATH////\\/}
-
-sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR_CHROME/$HOST_NAME.json"
-if [ "$(uname -s)" = "Darwin" ]; then
-  sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR_CHROME_CANARY/$HOST_NAME.json"
-fi
-sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR_CHROMIUM/$HOST_NAME.json"
-
-# Set permissions for the manifest so that all users can read it.
-chmod o+r "$TARGET_DIR_CHROME/$HOST_NAME.json"
-if [ "$(uname -s)" = "Darwin" ]; then
-  chmod o+r "$TARGET_DIR_CHROME_CANARY/$HOST_NAME.json"
-fi
-chmod o+r "$TARGET_DIR_CHROMIUM/$HOST_NAME.json"
-
-echo "Native messaging host $HOST_NAME has been installed"
+rm "$TARGET_DIR_CHROMIUM/org.js2at.$HOST_NAME.json"
+echo "Native messaging host $HOST_NAME has been uninstalled."

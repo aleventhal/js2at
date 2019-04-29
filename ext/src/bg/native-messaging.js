@@ -19,7 +19,7 @@ function ensureNativeConnection(onNativeMessageCallback) {
   if (nativePort && nativePort.onMessage.hasListeners()) {
     return true;
   }
-  var hostName = "org.js2at.chrome_native_messaging_host";
+  var hostName = "org.js2at.message_broker";
   nativePort = chrome.runtime.connectNative(hostName);
   if (chrome.runtime.lastError) {
     console.error(chrome.runtime.lastError);

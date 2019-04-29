@@ -9,25 +9,26 @@ import threading
 import collections
 
 requestId = 0   # Incremented for each new message.
-messages_to_browser = collections.deque()   # Outgoing message queue.
+messages_to_broker = collections.deque()   # Outgoing message queue.
 
-def exchange_browwser_messages_thread_func(messages_to_browser, socket):
+def exchange_broker_messages_thread_func(messages_to_broker, socket):
   while 1:
     try:
-      message_from_browser = socket.recv_string(flags=zmq.NOBLOCK)
-      print 'Incoming response: %s' % message_from_browser
+      message_from_broker = socket.recv_string(flags=zmq.NOBLOCK)
+      print 'Incoming response: %s' % message_from_broker
     except zmq.error.Again:
       pass
 
-    if messages_to_browser:
-      browser_message = messages_to_browser.popleft()
+    if messages_to_broker:
+      broker_message = messages_to_broker.popleft()
       try:
-        socket.send_string(browser_message)
-        print 'Sent to browser: %s' %  browser_message    # Should be off by default.
+        socket.send_string(broker_message, flags=zmq.NOBLOCK)
+        print 'Sent to broker: %s' %  broker_message    # Should be off by default.
       except zmq.error.Again:
+        # TODO limit number of tries.
         # Resource wasn't ready so failed to send -- place back in deque.
         # Place on the left side that the message order is still correct once resource is free.
-        messages_to_browser.appendleft(browser_message)
+        messages_to_broker.appendleft(broker_message)
         pass
 
 
@@ -49,7 +50,7 @@ def Main():
   parser = argparse.ArgumentParser()
   parser.add_argument('-p', '--port')
   args = parser.parse_args()
-  port = '18322'
+  port = '18323'
   if args.port:
     port = args.port
 
@@ -69,9 +70,9 @@ def Main():
   """)
 
   # Handle all port messaging on a single thread.
-  exchange_browser_messages_thread = threading.Thread(target=exchange_browwser_messages_thread_func, args=(messages_to_browser, socket))
-  exchange_browser_messages_thread.daemon = True
-  exchange_browser_messages_thread.start()
+  exchange_broker_messages_thread = threading.Thread(target=exchange_broker_messages_thread_func, args=(messages_to_broker, socket))
+  exchange_broker_messages_thread.daemon = True
+  exchange_broker_messages_thread.start()
 
   # Continuously check for new commands on stdin and add corrsponding requests
   # to outgoing message queue.
@@ -93,7 +94,7 @@ def Main():
       print 'Not a valid command.'
       continue
     request_text = json.dumps(request)
-    messages_to_browser.append(request_text)
+    messages_to_broker.append(request_text)
 
 if __name__ == '__main__':
   Main()

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# TODO how do we deal with multiple ATs
+# This broker passes messages from AT to browser, and vice-versa.
+# AT communication is done via a tcp port that the AT opens.
+# Browser communication is done via the native messaging api (stdin/stdout).
+# TODO how do we deal with multiple ATs, multiple brokers (one per browser)
 
 import argparse
 import atexit
@@ -16,10 +19,10 @@ import zmq
 
 messages_from_browser = collections.deque()
 
-# Set up logging, both to ./js2at-native-messaging-host.log and to stderr.
+# Set up logging, both to ./message-broker.log and to stderr.
 # To see stderr output when browser is running the script, launch the browser
 # via command line in a terminal window.
-LOGFILE = 'js2at-native-messaging-host.log'
+LOGFILE = 'message-broker.log'
 if os.path.exists(LOGFILE):
   os.remove(LOGFILE)
 logging.basicConfig(filename=LOGFILE,level=logging.DEBUG)
@@ -66,18 +69,18 @@ def Main():
   def global_exception_hook(exc_type, exc_value, traceback):
     logging.error("Uncaught exception", exc_info=(exc_type, exc_value, traceback))
     if at_socket:
-      at_socket.send_string('{ "js2at-native-messaging-host-error": "%s"}' % exc_type)
+      at_socket.send_string('{ "$js2at-message-broker-error": "%s"}' % exc_type)
     sys.__excepthook__(exc_type, exc_value, traceback)
   sys.excepthook = global_exception_hook
 
-  logging.info('\n\nBegin js2at-native-messaging host')
+  logging.info('\n\nBegin native-message broker')
   # Get port number, use --port=[portnum] or will use default port.
   parser = argparse.ArgumentParser()
   parser.add_argument('chrome-extension', nargs='?')
   parser.add_argument('--parent-window', type=int)
   parser.add_argument('--port', '-p')
   args = parser.parse_args()
-  port = '18322'
+  port = '18323'
   if args.port:
     port = args.port
 
@@ -109,7 +112,7 @@ def Main():
     if messages_from_browser:
       browser_message = messages_from_browser.popleft()
       try:
-        at_socket.send_string(browser_message)
+        at_socket.send_string(browser_message, flags=zmq.NOBLOCK)
         logging.info('Sent to at: %s' %  browser_message)    # Should be off by default.
       except zmq.error.Again:
         # Resource wasn't ready so failed to send -- place back in deque.

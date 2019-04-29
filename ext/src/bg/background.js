@@ -1,18 +1,14 @@
 /**
  * 1. Send and receive messages from the web page
- * 2. Send and receive messages from native messaging host
+ * 2. Send and receive messages from native messaging broker
  *    (uses native-messaging.js to do the actual work)
  * 3. Validate messages (TODO)
  */
 
 // TODO track all the ports, ids, types, etc.
 let requestId = 1;
-let pagePorts = {};
+let pagePorts = {};  // Observer map indexed via [requestType][targetUid].
 let targetUid;
-
-// A port is connected, indicatingthat an object on the page is listening to
-// js2at requests.
-chrome.runtime.onConnectExternal.addListener((port) => onPagePortConnect);
 
 function onPagePortConnect(port) {
   if (chrome.runtime.lastError) {
@@ -122,4 +118,9 @@ function onPagePortDisconnect(port) {
     targetUid
   });
 }
+
+// A port is connected, indicatingthat an object on the page is listening to
+// js2at requests.
+chrome.runtime.onConnectExternal.addListener(onPagePortConnect);
+
 

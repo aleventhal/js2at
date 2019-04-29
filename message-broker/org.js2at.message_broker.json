@@ -1,6 +1,6 @@
 {
-  "name": "org.js2at.chrome_native_messaging_host",
-  "description": "Js2at Chrome Native Messaging API Host",
+  "name": "org.js2at.message_broker",
+  "description": "Js2at Message Broker",
   "path": "HOST_PATH",
   "type": "stdio",
   "allowed_origins": [

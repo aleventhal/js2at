@@ -1,9 +1,0 @@
-{
-  "name": "org.js2at.chrome_native_messaging_host",
-  "description": "Js2at Chrome Native Messaging API Host",
-  "path": "js2at-native-messaging-host.bat",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://jpgoldinadnmhfknenolkgbnockemnid/"
-  ]
-}
