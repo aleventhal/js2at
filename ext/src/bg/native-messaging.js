@@ -13,6 +13,7 @@ function onNativeMessagingDisconnected() {
 }
 
 function ensureNativeConnection(onNativeMessageCallback) {
+  // If no listeners, that means the native port was disconnected externally.
   if (nativePort && nativePort.onMessage.hasListeners()) {
     return true;
   }
