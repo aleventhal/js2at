@@ -1,10 +1,20 @@
+/**
+ * 1. Send and receive messages from the web page
+ * 2. Send and receive messages from native messaging host
+ *    (uses native-messaging.js to do the actual work)
+ * 3. Validate messages (TODO)
+ */
+
 // TODO track all the ports, ids, types, etc.
 let requestId = 1;
 let pagePorts = {};
 let targetUid;
 
-chrome.runtime.onConnectExternal.addListener((port) => {
+// A port is connected, indicatingthat an object on the page is listening to
+// js2at requests.
+chrome.runtime.onConnectExternal.addListener((port) => onPagePortConnect);
 
+function onPagePortConnect(port) {
   if (chrome.runtime.lastError) {
     console.error(chrome.runtime.lastError);
     return;
@@ -36,7 +46,7 @@ chrome.runtime.onConnectExternal.addListener((port) => {
     observerAdded: requestType,
     targetUid
   });
-});
+}
 
 function onNativeMessage(request) {
   console.log('Message received from AT', request);
