@@ -32,7 +32,7 @@ if sys.platform == "win32":
   msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
   msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
 
-# Thread that reads messages from the webapp.
+# Thread that reads messages from the browser via stdin.
 def read_browser_messages_thread_func():
   logging.info('Begin listening for messages from browser')
   while 1:
@@ -51,6 +51,7 @@ def read_browser_messages_thread_func():
       logging.error("Exception reading browser messages: %s" % error)
       pass
 
+# Send a message to browser via stdout.
 def send_to_browser(message):
   logging.info('Send to browser: %s' % message)  # Should be off by default.
   # Write message size.
@@ -80,24 +81,14 @@ def Main():
   if args.port:
     port = args.port
 
-  send_to_browser('{ "ping": true }')
-
-  # Set up connection with AT
+  # Set up connection with AT, this side is the client, and the AT is the server.
   context = zmq.Context()
-  def cleanup(): # TODO why isn't this called when browser closes us?
-    context.term()
-  def signal_handler(signal, frame):
-    logging.info('Signal %s' % signal)
-    cleanup()
-    sys.exit(0)
-  atexit.register(cleanup)
-  signal.signal(signal.SIGTERM, signal_handler)
-  signal.signal(signal.SIGINT, signal_handler)
   at_socket = context.socket(zmq.PAIR)
   at_address = 'tcp://127.0.0.1:%s' % port
   at_socket.connect(at_address)
   logging.info('Connected to AT via port %s' % port)
 
+  # Browser messages on read from stdin on a separate thread.
   receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func)
   receive_browser_message_thread.daemon = True
   receive_browser_message_thread.start()

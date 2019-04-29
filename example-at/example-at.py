@@ -8,8 +8,8 @@ import argparse
 import threading
 import collections
 
-requestId = 0
-messages_to_browser = collections.deque()
+requestId = 0   # Incremented for each new message.
+messages_to_browser = collections.deque()   # Outgoing message queue.
 
 def exchange_browwser_messages_thread_func(messages_to_browser, socket):
   while 1:
@@ -68,10 +68,13 @@ def Main():
   z                              Request all zebras (will return error)
   """)
 
-  receive_browser_message_thread = threading.Thread(target=exchange_browwser_messages_thread_func, args=(messages_to_browser, socket))
-  receive_browser_message_thread.daemon = True
-  receive_browser_message_thread.start()
+  # Handle all port messaging on a single thread.
+  exchange_browser_messages_thread = threading.Thread(target=exchange_browwser_messages_thread_func, args=(messages_to_browser, socket))
+  exchange_browser_messages_thread.daemon = True
+  exchange_browser_messages_thread.start()
 
+  # Continuously check for new commands on stdin and add corrsponding requests
+  # to outgoing message queue.
   while 1:
     inp = raw_input('')
     if inp[:1] == 'h':
