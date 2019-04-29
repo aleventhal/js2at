@@ -12,8 +12,8 @@ Js2at currently requires 4 things:
 
 1. Install the native messaging host
 
-On Windows, run tools/native-messaging-host/install-host-win.bat
-Otherwise, run tools/native-messaging-host/install-host.sh
+On Windows, run native-messaging-host/install-host-win.bat
+Otherwise, run native-messaging-host/install-host.sh
 
 The native messaging host installer does not yet support Firefox.
 
