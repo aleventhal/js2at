@@ -13,7 +13,7 @@ function onNativeMessagingDisconnected() {
 }
 
 function ensureNativeConnection(onNativeMessageCallback) {
-  if (nativePort) {
+  if (nativePort && nativePort.onMessage.hasListeners()) {
     return true;
   }
   var hostName = "org.js2at.chrome_native_messaging_host";
