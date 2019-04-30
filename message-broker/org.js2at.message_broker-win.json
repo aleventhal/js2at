@@ -1,0 +1,9 @@
+{
+  "name": "org.js2at.message_broker",
+  "description": "Js2at Message Broker",
+  "path": "message-broker.bat",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://jpgoldinadnmhfknenolkgbnockemnid/"
+  ]
+}

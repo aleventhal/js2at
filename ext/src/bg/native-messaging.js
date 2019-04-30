@@ -1,4 +1,6 @@
-console.log('sendNativeMessage({ someObj }) will send a message to the ATs');
+// Handle communcation with the js2at native broker.
+
+  console.log('sendNativeMessage({ someObj }) will send a message to the ATs');
 
 let nativePort;
 function sendNativeMessage(message) {
@@ -13,10 +15,11 @@ function onNativeMessagingDisconnected() {
 }
 
 function ensureNativeConnection(onNativeMessageCallback) {
-  if (nativePort) {
+  // If no listeners, that means the native port was disconnected externally.
+  if (nativePort && nativePort.onMessage.hasListeners()) {
     return true;
   }
-  var hostName = "org.js2at.chrome_native_messaging_host";
+  var hostName = "org.js2at.message_broker";
   nativePort = chrome.runtime.connectNative(hostName);
   if (chrome.runtime.lastError) {
     console.error(chrome.runtime.lastError);

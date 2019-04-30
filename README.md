@@ -4,7 +4,7 @@
 
 Js2at currently requires 4 things:
 - An assistive technology, which connects to
-- Native messaging host, which connects to
+- Native messaging broker, which connects to
 - An extension that supports the polyfill library, which connects to
 - A web page that uses it via a polyfill library
 
@@ -12,8 +12,8 @@ Js2at currently requires 4 things:
 
 1. Install the native messaging host
 
-On Windows, run tools/native-messaging-host/install-host-win.bat
-Otherwise, run tools/native-messaging-host/install-host.sh
+On Windows, run message-broker/install-broker-win.bat
+Otherwise, run message-broker/install-broker.sh
 
 The native messaging host installer does not yet support Firefox.
 
@@ -34,13 +34,13 @@ Chrome won't allow file:// urls to communicate with an extension, so run a
 local server such as
 via python -m SimpleHTTPServer and then load it from localhost.
 
-You do not have to run the native messaging host, the browser launches it.
+You do not have to run the message broker, the browser launches it.
 
 ## Debugging
 
 - Both the extension and web page will log their messages to their JS consoles.
-- The native messaging host will log to a file called
-js2at-native-messaging-host.log in the same directory as the messaging host.
+- The message-broker will log to a file called
+message-broker.log in the same directory as the messaging host.
 Alternatively, launch chrome from a terminal to view logging output there.
 - The example AT logs to stdout.
 
