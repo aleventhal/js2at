@@ -15,7 +15,9 @@ import threading
 import time
 
 import addonHandler
+from logHandler import log
 from scriptHandler import script
+import speech
 import globalPluginHandler
 import ui
 import json
@@ -34,24 +36,40 @@ requestId = 0
 port = '18323'
 context = zmq.Context()
 socket = context.socket(zmq.PAIR)
+exit_now = False
+requestId = 1
 
-# as a prototype, this gets put in the menu to start js2at
+def get_role_request(role):
+	global requestId
+	requestId += 1
+	request = {
+		'requestType': 'http://js2at.org/schema/fetchAll.json',
+		'requestId': str(requestId),
+		'targetUid': '1',
+		'detail': {
+			'role': role
+		}
+	}
+	return request
+# as a prototype, thisscript starts js2at.
 def connect():
-	socket.connect("tcp://127.0.0.1:%s" % port)
+	socket.bind("tcp://127.0.0.1:%s" % port)
 
 def read_browser_messages_thread_func():
-	while True:
-		message_from_browser = socket.recv_string()  # flags=NOBLOCK ?
-		ui.message(message_from_browser)
+	speech.speakMessage("starting thread!")
+	while not exit_now:
+		if socket.poll(10):
+			log.debug("I just polled this!")
+			message_from_browser = socket.recv_string()  # flags=NOBLOCK ?
+			speech.cancelSpeech()
+			speech.speakMessage(message_from_browser)
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
-	def __init__(self):		super(GlobalPlugin, self).__init__()
-		self.thread = receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func)
-		receive_browser_message_thread.daemon = True
-		receive_browser_message_thread.start()
-		self.thread._Thread__stop()
+	def __init__(self):
+		global exit_now
+		super(GlobalPlugin, self).__init__()
 
 
 
@@ -63,4 +81,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_testJZQ(self, gesture):
 		ui.message("setting up system")
 		connect()
+		receive_browser_message_thread = threading.Thread(target=read_browser_messages_thread_func)
+		receive_browser_message_thread.daemon = True
+		receive_browser_message_thread.start()
 		ui.message("js2at was successfully set up!")
+
+	def terminate(self):
+		exit_now = True
