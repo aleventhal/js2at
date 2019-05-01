@@ -1,11 +1,10 @@
 // Handle communcation with the js2at native broker.
 
-  console.log('sendNativeMessage({ someObj }) will send a message to the ATs');
+console.log('sendNativeMessage({ someObj }) will send a message to the ATs');
 
 let nativePort;
 function sendNativeMessage(message) {
-  if (ensureNativeConnection())
-    nativePort.postMessage(message);
+  nativePort.postMessage(message);
 }
 
 function onNativeMessagingDisconnected() {

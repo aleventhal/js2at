@@ -24,15 +24,14 @@
     ],
     "persistent": true
   },
-  "permissions": [
-   "nativeMessaging"
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "run_at": "document_start",
+      "js": ["src/content/content.js"]
+    }
   ],
-  "externally_connectable": {
-    "note-comment": "Contact project or send PR to have your domain added (the communication mechanism does not allow more general wildcards)",
-    "matches": [
-      "*://*.google.com/*",
-      "*://localhost:*/*",
-      "*://raw.githack.com/*"
-    ]
-  }
+  "permissions": [
+    "nativeMessaging"
+  ]
 }

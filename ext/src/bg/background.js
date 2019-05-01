@@ -5,43 +5,19 @@
  * 3. Validate messages (TODO)
  */
 
-// TODO track all the ports, ids, types, etc.
+// TODO what happens if AT launches after page?
+// TODO one port per tab.
+
 let requestId = 1;
-let pagePorts = {};  // Observer map indexed via [requestType][targetUid].
 let targetUid;
+let pagePort;
 
 function onPagePortConnect(port) {
-  if (chrome.runtime.lastError) {
-    console.error(chrome.runtime.lastError);
-    return;
-  }
-
-  if (!port.name.startsWith('js2at::'))
+  if (port.name !== 'js2at')
     return;  // Not handled.
 
-  // TODO what happens if lots of observers were created before the native
-  // connection could be created?
-  if (!ensureNativeConnection(onNativeMessage))
-    return;
-
-  const observerInfo = parseObserverName(port.name);
-  if (!observerInfo)
-    return;  // Not handled.
-  // A new port has opened to listen to a single request type on a single
-  // object.
-  console.log('Page connected a requestType + target', observerInfo);
-  const { requestType, targetUid } = observerInfo;
-  if (!pagePorts[requestType]) {
-    pagePorts[requestType] = {};
-  }
-  pagePorts[requestType][targetUid] = port;
-
-  port.onMessage.addListener(onPageMessage);
-  port.onDisconnect.addListener(onPagePortDisconnect);
-  sendNativeMessage({
-    observerAdded: requestType,
-    targetUid
-  });
+  pagePort = port;
+  pagePort.onMessage.addListener(onPageMessage);
 }
 
 function onNativeMessage(request) {
@@ -75,15 +51,11 @@ function onNativeMessage(request) {
   console.assert(request.detail && typeof request.detail === 'object',
     'Request |detail| must be present and an object.');
 
-  // Our page ports map needs to be storing per tab, or let each contentscript handle this.
-  console.assert(pagePorts[request.requestType] && pagePorts[request.requestType][request.targetUid],
-    'Page must be listening to requests of this type, for this targetUid');
-
   sendContentRequest(request);
 }
 
 function sendContentRequest(request) {
-  pagePorts[request.requestType][request.targetUid].postMessage(request);
+  pagePort.postMessage(request);
 }
 
 function parseObserverName(name) {
@@ -97,30 +69,49 @@ function parseObserverName(name) {
   };
 }
 
+// Format:
+// {
+//   responseForMessageId: string,
+//   isComplete: boolean,
+//   detail: {}
+// }
 function onPageMessage(message) {
-  console.log('background.js --  onPageMessage', message);
-  // TODO should we validate that this request exists and is open?
-  console.assert(message.responseForRequestId);
-  sendNativeMessage(message);
+  const internalCommand = message['$command'];
+  if (internalCommand) {
+    // A $command is something internal, sent by js2at infrastructure.
+    if (internalCommand === 'observerAdded') {
+      console.log('Page connected a requestType + target', message);
+    }
+    else if (internalCommand == 'observerRemoved') {
+      console.log('Page disconnected a requestType + target', message);
+    }
+  }
+  else {
+    console.log('Page message:', message);
+    // TODO should we verify that this specific request is open, or leave to AT?
+    console.assert(message.responseForRequestId);
+    console.assert(message.detail);
+  }
+  if (ensureNativeConnection(onNativeMessage))
+    sendNativeMessage(message);
 }
 
 function onPagePortDisconnect(port) {
   const observerInfo = parseObserverName(port.name);
   if (!observerInfo)
     return;  // Not handled.
-  // A new port has opened to listen to a single request type on a single
-  // object.
   console.log('Page port disconnected', observerInfo);
   const { requestType, targetUid } = observerInfo;
   delete pagePorts[requestType][targetUid];
   sendNativeMessage({
-    observerRemoved: requestType,
-    targetUid
+    command: "$disconnect",
+    type: requestType,
+    uid: targetUid
   });
 }
 
 // A port is connected, indicatingthat an object on the page is listening to
 // js2at requests.
-chrome.runtime.onConnectExternal.addListener(onPagePortConnect);
+chrome.runtime.onConnect.addListener(onPagePortConnect);
 
 

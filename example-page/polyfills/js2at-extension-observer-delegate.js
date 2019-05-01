@@ -1,16 +1,12 @@
 /* eslint parserOptions: ["sourceType", "module"] */
 import Js2atUniqueIdManager from './js2at-unique-id-manager.js';
 import Js2atRequest from './js2at-request.js';
-
-const kExtensionId = 'jpgoldinadnmhfknenolkgbnockemnid';
-
-// TODO In Firefox it is not possible to use the native messaging API from a
-// page script, so it will be necessary to share objects with a content script.
-// See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-// Or use CustomEvent like in the use-custom-event branch.
+import Js2atMessagePort from './js2at-message-port.js';
 
 // Observer for one type of js2at message, may be used to listen to the same
 // request type on multiple targets.
+
+// TODO support multiple observers each having the same type.
 
 export default class Js2atObserverDelegate {
   // Promise failure handling
@@ -96,10 +92,11 @@ export default class Js2atObserverDelegate {
       this.onRequest(js2atRequest);
     };
 
-    this.type = requestType;
+    console.assert(requestType instanceof URL);
+    this.type = requestType.toString();  // Convert URL to serializable string.
     this.onRequest = onRequest;
     this.onCancel = onCancel;
-    this.ports = new WeakMap(); // Map from uuid to port
+    this.ports = new WeakMap(); // Map from event target to port
     // Keep a map of request ids to requests, and hold a strong reference to
     // the requests so that they don't go away before being completed.
     this.pendingRequests = new Map();
@@ -126,30 +123,22 @@ export default class Js2atObserverDelegate {
     let port = this.ports.get(eventTarget);
     if (!port) {
       const uid = Js2atUniqueIdManager.getOrCreateUid(eventTarget);
-
-      port = chrome.runtime.connect( kExtensionId, {
-        name: 'js2at::' + this.type + '::' + uid
-      });
-      if (chrome.runtime.lastError ) {
-        console.error(chrome.runtime.lastError);
-        return;
-      }
-      console.assert(port);
-      this.ports.set(eventTarget, port);
-      port.onDisconnect.addListener((port) => {
+      const onPortDisconnected = (port) => {
         // Port disconnected by extension.
-        const targetUid = port.name.split('::')[2];
+        const targetUid = port.uid;
         this.ports.delete(Js2atUniqueIdManager.getTarget(targetUid));
-      });
+      };
+      port = new Js2atMessagePort(this.type, uid, onPortDisconnected);
+      this.ports.set(eventTarget, port);
     }
-    port.onMessage.addListener(this.onMessage);
+    port.addListener(this.onMessage);
   }
 
   unobserve(eventTarget) {
     if (!this.ports)
       return;
     const port = this.ports.get(eventTarget);
-    port.onMessage.removeListener(this.onMessage);
+    port.removeListener(this.onMessage);
   }
 
   disconnect() {  // Ensures full cleanup.
