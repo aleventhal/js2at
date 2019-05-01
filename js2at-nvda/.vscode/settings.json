@@ -1,0 +1,13 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "python.autoComplete.extraPaths": [
+        "C:\\Users\\driem\\nvda\\source"
+    ],
+    "cSpell.userWords": [
+        "riemer"
+    ],
+    "python.pythonPath": "C:\\Python27\\python.exe",
+    "cSpell.words": [
+        "NVDA"
+    ]
+}
