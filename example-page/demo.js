@@ -1,5 +1,5 @@
-import Js2atObserver from './polyfills/js2at-observer.js';
-import Js2atUniqueIdManager from './polyfills/js2at-unique-id-manager.js';
+import Js2atObserver from '../polyfills/js2at-observer.js';
+import Js2atUniqueIdManager from '../polyfills/js2at-unique-id-manager.js';
 
 export default function js2AtDemo(Js2atRequest) {
   const kFetchAllRequestType = new URL('http://js2at.org/schema/fetchAll.json');

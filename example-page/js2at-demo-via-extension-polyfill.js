@@ -4,8 +4,8 @@
 // Js2at helper extension, which uses the native messaging API to communicate
 // with the AT.
 
-import Js2atObserverDelegate from './polyfills/js2at-extension-observer-delegate.js';
-import Js2atObserver from './polyfills/js2at-observer.js';
+import Js2atObserverDelegate from '../polyfills/js2at-extension-observer-delegate.js';
+import Js2atObserver from '../polyfills/js2at-observer.js';
 
 // This allows us to create the demo based on different implementations, e.g.
 // via extension/input polyfill or via built-in browser support.
