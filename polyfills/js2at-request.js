@@ -29,7 +29,7 @@ export default class Js2atRequest {
       if (!errorDetail)
         throw new Error('No errorDetail parameter provided');
       this.errorImpl(errorDetail);
-      this.finishImpl();
+      this.completeImpl();
       this.isComplete = true;
     };
   }
