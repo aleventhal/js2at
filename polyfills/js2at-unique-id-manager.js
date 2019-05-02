@@ -1,7 +1,5 @@
 /* eslint parserOptions: ["sourceType", "module"] */
-
-// TODO: should we observe whether nodes become attached / detached?
-// Otherwise technically we'll hold onto nodes unnecessarily.
+/* Singleton service that creates and stores unique ids for any event target */
 
 class Js2atUniqueIdManager {
   constructor() {
@@ -9,18 +7,35 @@ class Js2atUniqueIdManager {
     this.uidToTarget = new Map();
     this.counter = 0;
   }
+
   add(target, uid) {
     if (target instanceof EventTarget === false)
       throw new Error('The provided target must be an EventTarget, such as an Element.');
     this.targetToUid.set(target, uid);
     this.uidToTarget.set(uid, target);
+    if (target.parentNode) {
+      // Observe removed children. Can't be done on root since there is no parent,
+      // but once the root is removed that means the document has gone away,
+      // in which case this singleton will be destroyed and the memory released.
+      if (!this.mutationObserver)
+        this.mutationObserver = new MutationObserver((mutationsList) => { this.onParentMutation(mutationsList); });
+      this.mutationObserver.observe(target.parentNode, { childList: true });
+    }
+  }
+
+  onParentMutation(mutationsList) {
+    // An element with a unique id may have been removed, because its parent
+    // has reported a change in its child nodes.
+    for(var mutation of mutationsList)
+      for (let removedNode of mutation.removedNodes)
+        this.removeTarget(removedNode);
   }
 
   remove(target, uid) {
     if (target instanceof EventTarget === false)
       throw new Error('The provided target must be an EventTarget, such as an Element.');
-    this.targetToUid.remove(target);
-    this.uidToTarget.remove(uid);
+    this.targetToUid.delete(target);
+    this.uidToTarget.delete(uid);
   }
 
   removeTarget(target) {

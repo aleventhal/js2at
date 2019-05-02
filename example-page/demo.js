@@ -4,7 +4,7 @@ import Js2atUniqueIdManager from '../polyfills/js2at-unique-id-manager.js';
 export default function js2AtDemo(Js2atRequest) {
   const kFetchAllRequestType = new URL('http://js2at.org/schema/fetchAll.json');
   const fetchRequestObserver = new Js2atObserver(kFetchAllRequestType, fetchAll, cancelFetchAll);
-  fetchRequestObserver.observe(document);
+  fetchRequestObserver.observe(document.getElementById('container'));
 
   function fetchAll(request) {
     const detail = request.detail;

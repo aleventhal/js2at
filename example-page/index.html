@@ -21,18 +21,19 @@
 </style>
 </head>
 <body>
-<h1>Js2at demo page</h1>
-<p>Js2at allows direct communications between a web page and an
-assistive technology, using a JSON message and response system.</p>
+<div id="container">
+  <h1>Js2at demo page</h1>
+  <p>Js2at allows direct communications between a web page and an
+  assistive technology, using a JSON message and response system.</p>
 
-<p>This page simulates a document that is only partially loaded. More headings will be exposed to the AT than what exist on the DOM, when the AT sends the fetchAll message with role = heading. The last heading sent is called 'Magical heading that only exists in the ether'.</p>
-<h1>Demo types<span id="demo-type-loaded"></span></h1>
-<ul>
-  <li><a href="?polyfill=extension">Use browser extension to polyfill (Chrome works; Firefox, Edge TBD)</a></li>
-  <li><a href="?polyfill=input">Use hidden input polyfill (TBD, should work on Chrome Windows, IE)</a></li>
-  <li><a href="?polyfill=none">Use built-in browser support (TBD)</a></li>
-</ul>
-
+  <p>This page simulates a document that is only partially loaded. More headings will be exposed to the AT than what exist on the DOM, when the AT sends the fetchAll message with role = heading. The last heading sent is called 'Magical heading that only exists in the ether'.</p>
+  <h1>Demo types<span id="demo-type-loaded"></span></h1>
+  <ul>
+    <li><a href="?polyfill=extension">Use browser extension to polyfill (Chrome works; Firefox, Edge TBD)</a></li>
+    <li><a href="?polyfill=input">Use hidden input polyfill (TBD, should work on Chrome Windows, IE)</a></li>
+    <li><a href="?polyfill=none">Use built-in browser support (TBD)</a></li>
+  </ul>
+</div>
 <!--
 <h1>Browser compatibility notes for hidden input polyfill</h1>
 <table>
