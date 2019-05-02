@@ -79,12 +79,10 @@ function onPageMessage(message) {
   const internalCommand = message['$command'];
   if (internalCommand) {
     // A $command is something internal, sent by js2at infrastructure.
-    if (internalCommand === 'observerAdded') {
+    if (internalCommand === 'observerAdded')
       console.log('Page connected a requestType + target', message);
-    }
-    else if (internalCommand == 'observerRemoved') {
+    else if (internalCommand == 'observerRemoved')
       console.log('Page disconnected a requestType + target', message);
-    }
   }
   else {
     console.log('Page message:', message);
@@ -92,6 +90,8 @@ function onPageMessage(message) {
     console.assert(message.responseForRequestId);
     console.assert(message.detail);
   }
+  // Only open connection is js2at us used by a page somewhere.
+  // TODO should we try to close connection if all js2at content is closed?
   if (ensureNativeConnection(onNativeMessage))
     sendNativeMessage(message);
 }
