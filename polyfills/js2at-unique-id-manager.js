@@ -6,6 +6,11 @@ class Js2atUniqueIdManager {
     this.targetToUid = new WeakMap();
     this.uidToTarget = new Map();
     this.counter = 0;
+    this.uidRemovedCallbacks = [];
+  }
+
+  addUidRemovedListener(callback) {
+    this.uidRemovedCallbacks.push(callback);
   }
 
   add(target, uid) {
@@ -28,7 +33,8 @@ class Js2atUniqueIdManager {
     // has reported a change in its child nodes.
     for(var mutation of mutationsList)
       for (let removedNode of mutation.removedNodes)
-        this.removeTarget(removedNode);
+        if (this.targetToUid.has(removedNode))
+          this.removeTarget(removedNode);
   }
 
   remove(target, uid) {
@@ -36,6 +42,8 @@ class Js2atUniqueIdManager {
       throw new Error('The provided target must be an EventTarget, such as an Element.');
     this.targetToUid.delete(target);
     this.uidToTarget.delete(uid);
+    for (let uidRemovedCallback of this.uidRemovedCallbacks)
+      uidRemovedCallback(uid);
   }
 
   removeTarget(target) {

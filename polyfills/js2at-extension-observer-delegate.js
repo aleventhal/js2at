@@ -1,6 +1,7 @@
 /* eslint parserOptions: ["sourceType", "module"] */
 import Js2atUniqueIdManager from './js2at-unique-id-manager.js';
 import Js2atRequest from './js2at-request.js';
+import Js2atMessagePortManager from './js2at-message-port-manager.js';
 import Js2atMessagePort from './js2at-message-port.js';
 
 // Observer for one type of js2at message, may be used to listen to the same
@@ -103,6 +104,8 @@ export default class Js2atObserverDelegate {
   }
 
   complete(requestId, isCancelled, isCancelledFromTimeout) {
+    if (!this.ports)
+      throw new Error('Js2at observer disconnected.')
     const request = this.pendingRequests.get(requestId);
     if (!request)
       return false;
@@ -118,36 +121,43 @@ export default class Js2atObserverDelegate {
 
   observe(eventTarget) {
     if (!this.ports)
-      return;
+      throw new Error('Js2at observer disconnected.')
 
-    let port = this.ports.get(eventTarget);
-    if (!port) {
-      const uid = Js2atUniqueIdManager.getOrCreateUid(eventTarget);
-      const onPortDisconnected = (port) => {
-        // Port disconnected by extension.
-        const targetUid = port.uid;
-        this.ports.delete(Js2atUniqueIdManager.getTarget(targetUid));
-      };
-      port = new Js2atMessagePort(this.type, uid, onPortDisconnected);
-      this.ports.set(eventTarget, port);
-    }
-    port.addListener(this.onMessage);
+    const uid = Js2atUniqueIdManager.getOrCreateUid(eventTarget, this.unobserve);
+    const onPortDisconnected = (port) => {
+      // Port disconnected by extension.
+      if (this.pendingRequests) {
+        // For any pending requests with the same uid, respond with error.
+        for (request of this.pendingRequests) {
+          if (request.targetUid === port.uid)
+            request.error({ error: 'Js2at observer disconnected'});
+        }
+      }
+      const targetUid = port.uid;
+      this.ports.delete(Js2atUniqueIdManager.getTarget(port.uid));
+    };
+    // This will not allow multiple observers for the same type x uid combo.
+    const port = new Js2atMessagePort(this.type, uid, this.onMessage,
+      onPortDisconnected);
+    this.ports.set(eventTarget, port);
   }
 
   unobserve(eventTarget) {
     if (!this.ports)
-      return;
+      throw new Error('Js2at observer disconnected.')
     const port = this.ports.get(eventTarget);
-    port.removeListener(this.onMessage);
+    console.assert(port, 'No js2at observer to remove.');
+    port.disconnect();
   }
 
   disconnect() {  // Ensures full cleanup.
-    let iterator = this.ports.keys;
-    while (iterator.next()) {
-      iterator.value.disconnect();
-    }
-    delete this.ports;
+    if (!this.ports)
+      throw new Error('Js2at observer already disconnected.')
+    this.ports.forEach((port) => {
+      port.disconnect();
+    });
     delete this.pendingRequests;
+    delete this.ports;
   }
 }
 
