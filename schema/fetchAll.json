@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://js2at.org/GetCaretData.schema.json",
+  "title": "GetCaretData",
+  "description": "Request information about the caret",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "request": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "description": "Objects of which role to fetch?",
+          "type": "string"
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "required": [ "objects" ],
+      "properties": {
+        "objects": {
+          "description": "Array of matching objects and their properties",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["role", "name", "uid"],
+            "properties": {
+              "role": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "uid": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
