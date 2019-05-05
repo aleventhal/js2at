@@ -20,10 +20,13 @@
   "background": {
     "scripts": [
       "src/bg/native-messaging.js",
-      "src/bg/background.js"
+      "src/bg/background.js",
+      "src/bg/ajv-schema-validator.js",
+      "src/bg/schema-manager.js"
     ],
     "persistent": true
   },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -32,6 +35,7 @@
     }
   ],
   "permissions": [
-    "nativeMessaging"
+    "nativeMessaging",
+    "storage"
   ]
 }

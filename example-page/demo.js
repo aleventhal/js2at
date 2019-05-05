@@ -2,7 +2,10 @@ import Js2atObserver from '../polyfills/js2at-observer.js';
 import Js2atUniqueIdManager from '../polyfills/js2at-unique-id-manager.js';
 
 export default function js2AtDemo(Js2atRequest) {
-  const kFetchAllRequestType = new URL('http://js2at.org/schema/fetchAll.json');
+  const kFetchAllRequestType =
+    //new URL('http://js2at.org/schema/fetchAll.json');
+    // Temporarily use hacky schema url location, until we serve the schemas:
+    new URL('https://raw.githack.com/aleventhal/js2at/master/schema/fetchAll.json');
   const fetchRequestObserver = new Js2atObserver(kFetchAllRequestType, fetchAll, cancelFetchAll);
   fetchRequestObserver.observe(document.getElementById('container'));
 

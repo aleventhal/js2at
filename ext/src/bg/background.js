@@ -11,6 +11,8 @@
 let requestId = 1;
 let targetUid;
 let pagePort;
+let settings = {};
+let openRequests = {}; // Track open requests and the requestType for them.
 
 function onPagePortConnect(port) {
   if (port.name !== 'js2at')
@@ -22,10 +24,6 @@ function onPagePortConnect(port) {
 
 function onNativeMessage(request) {
   console.log('Message received from AT', request);
-  // Handle special built-in requests (not a URL request Type).
-  if (request.ping)
-    return;
-
   // Validate requestId.
   console.assert(request.requestId, 'Request |requestId| required.');
 
@@ -51,7 +49,21 @@ function onNativeMessage(request) {
   console.assert(request.detail && typeof request.detail === 'object',
     'Request |detail| must be present and an object.');
 
-  sendContentRequest(request);
+  // Only open connection is js2at us used by a page somewhere.
+  // TODO should we try to close connection if all js2at content is closed?
+  if (openRequests[request.requestId]) {
+    console.error('The |requestId| ' + request.requestId + ' was used more than once');
+    return;
+  }
+  validate(request.requestType, { request: request.detail })
+    .then(() => {
+      openRequests[request.requestId] = request.requestType;
+      console.log(openRequests[request.requestId]);
+      sendContentRequest(request);
+    });
+    // Do nothing for catch. Don't send illegal AT requests to content at all.
+    // .catch((err) => {
+    // });
 }
 
 function sendContentRequest(request) {
@@ -71,29 +83,86 @@ function parseObserverName(name) {
 
 // Format:
 // {
-//   responseForMessageId: string,
+//   responseForRequestId: string,
 //   isComplete: boolean,
 //   detail: {}
 // }
 function onPageMessage(message) {
+  if (!ensureNativeConnection(onNativeMessage))
+    return;
   const internalCommand = message['$command'];
   if (internalCommand) {
     // A $command is something internal, sent by js2at infrastructure.
-    if (internalCommand === 'observerAdded')
-      console.log('Page connected a requestType + target', message);
-    else if (internalCommand == 'observerRemoved')
+    if (internalCommand === 'observerAdded') {
+      loadSchema(message.type)
+        .then((result) => {
+          console.log('Page connected a requestType + target', message);
+          sendNativeMessage(message);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      return;
+    }
+    else if (internalCommand == 'observerRemoved') {
       console.log('Page disconnected a requestType + target', message);
+    }
   }
   else {
     console.log('Page message:', message);
-    // TODO should we verify that this specific request is open, or leave to AT?
     console.assert(message.responseForRequestId);
     console.assert(message.detail);
+    sendNativeMessage(message);  // TODO: Don't send unless we sent observerAdded?
   }
+
+  sendPageResponseIfValid(message);
+}
+
+function sendPageResponseIfValid(response) {
+  const requestType = openRequests[response.responseForRequestId];
+
+  if (!requestType) {
+    console.error('The |responseForRequestId| of ' + response.responseForRequestId +
+      ' did not correspond to an open response.');
+    return;
+  }
+
+  if (response.isComplete)
+    delete openRequests[response.requestId];
+
+  if (!response.detail) {
+    sendNativeMessage({
+      responseForRequestId: response.responseForRequestId,
+      isComplete: true,
+      detail: {
+        error: 'Missing required |detail| field'
+      }
+    });
+    return;
+  }
+
+  if (response.detail.error) {
+    // Error responses from the page are not currently validated, just returned.
+    sendNativeMessage(response);
+    return;
+  }
+
   // Only open connection is js2at us used by a page somewhere.
   // TODO should we try to close connection if all js2at content is closed?
-  if (ensureNativeConnection(onNativeMessage))
-    sendNativeMessage(message);
+  validate(requestType, { response: response.detail })
+    .then(() => {
+      sendNativeMessage(response);
+    })
+    .catch((error) => {
+      // Send validation error back.
+      sendNativeMessage({
+        responseForRequestId: response.responseForRequestId,
+        isComplete: true,
+        detail: {
+          error
+        }
+      });
+    });
 }
 
 function onPagePortDisconnect(port) {
@@ -109,6 +178,37 @@ function onPagePortDisconnect(port) {
     uid: targetUid
   });
 }
+
+function getSettings() {
+  return settings;
+}
+
+function setApiFilter(apiFilter) {
+  chrome.storage.sync.set({ apiFilter });
+  settings.apiFilter =apiFilter;
+}
+
+function setValidation(validation) {
+  chrome.storage.sync.set({ validation });
+  settings.validation = validation;
+}
+
+chrome.storage.sync.get(['apiFilter', 'validation'], (storedSettings) => {
+  settings = storedSettings;  // Just use. Don't resave back to storage.
+
+  // TODO Make code DRY. These allowed values are repeated in popup.html.
+  console.assert(typeof settings.apiFilter === 'undefined' ||
+    settings.apiFilter === 'strict' ||
+    settings.apiFilter === 'community' ||
+    settings.apiFilter === 'experimental');
+  settings.apiFilter = settings.apiFilter || 'community';
+
+  console.assert(typeof settings.validation === 'undefined' ||
+    settings.validation === 'none' ||
+    settings.validation === 'log' ||
+    settings.validation === 'reject');
+  settings.validation = settings.validation || 'reject';
+});
 
 // A port is connected, indicatingthat an object on the page is listening to
 // js2at requests.

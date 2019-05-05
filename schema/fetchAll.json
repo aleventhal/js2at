@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://js2at.org/GetCaretData.schema.json",
-  "title": "GetCaretData",
-  "description": "Request information about the caret",
+  "$id": "http://js2at.org/FetchAll.json",
+  "title": "FetchAll",
+  "description": "Request all objects matching the pattern",
   "type": "object",
   "additionalProperties": false,
   "minProperties": 1,
