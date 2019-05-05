@@ -30,7 +30,7 @@ function loadSchema(type) {
   if (compiledSchema)
     return Promise.resolve(compiledSchema);  // Already processed this schema.
 
-  console.log('Load schema for: ', type);
+  console.log('Load Js2at schema for: ', type);
   const schemaUrl = new URL(type);
   // May not be desirable to notify AT that the page attempted to use an
   // illegal schema url, just log to console. TODO revisit this.
@@ -61,8 +61,6 @@ function loadSchema(type) {
 function validate(type, data) {
   if (settings.validation === 'none')
     return Promise.resolve();  // No validation -- don't need to load schema.
-
-  console.log('Validate', type, data);
 
   return loadSchema(type)
     .then((compiledSchema) => {

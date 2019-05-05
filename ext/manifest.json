@@ -21,7 +21,7 @@
     "scripts": [
       "src/bg/native-messaging.js",
       "src/bg/background.js",
-      "src/bg/ajv-schema-validator.js",
+      "src/bg/lib/ajv-schema-validator.js",
       "src/bg/schema-manager.js"
     ],
     "persistent": true
