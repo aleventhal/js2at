@@ -59,6 +59,9 @@ function onRequestFromAT(request) {
       const url = new URL(request.requestType);  // Ensure parsable as URL.
       if (!url.pathname.endsWith('.json'))
         return Promise.reject('Request |requestType| must be a URL that points to a JSON document, and has .json extension.');
+
+      if (!cachedSchemas[request.requestType])
+        return Promise.reject('No observer for this requestType: ' + request.requestType);
     })
     .then(() => {
       return validateUsingSchemaUrl(request.requestType, { request: request.detail })
