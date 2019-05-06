@@ -46,29 +46,46 @@ function loadSchema(type) {
         }
 
         // Examine the text in the response
-        response.json().then(function(schema) {
-          ajv = ajv || new Ajv();
-          compiledSchema = ajv.compile(schema);
-          cachedSchemas[type] = compiledSchema;
-          return compiledSchema;
+        response.json().then((schemaObj) => {
+          compileSchema(type, schemaObj);
         });
       })
       .catch(reject);  // TODO is this necessary? Return Promise.reject() ?
   });
 }
 
-// If rejected returns
-function validate(type, data) {
+function hasSchema(type) {
+  return Boolean(cachedSchemas[type]);
+}
+
+function compileSchema(type, schemaObj) {
+  ajv = ajv || new Ajv();
+  compiledSchema = ajv.compile(schemaObj);
+  cachedSchemas[type] = compiledSchema;
+  return compiledSchema;
+}
+
+function validateUsingCompiledSchema(compiledSchema, data) {
+  const valid = compiledSchema(data);
+  if (!valid) {
+    console.error('Schema errors', compiledSchema.errors);
+    if (settings.validation == 'reject')
+      return Promise.reject( { schemaErrors: compiledSchema.errors } );
+  }
+  return Promise.resolve();
+}
+
+function validateUsingInternalSchema(type, schemaObj, data) {
+  const compiledSchema = cachedSchemas[type] || compileSchema(type, schemaObj);
+  return validateUsingCompiledSchema(compiledSchema, data);
+}
+
+function validateUsingSchemaUrl(schemaUrl, data) {
   if (settings.validation === 'none')
     return Promise.resolve();  // No validation -- don't need to load schema.
 
-  return loadSchema(type)
+  return loadSchema(schemaUrl)
     .then((compiledSchema) => {
-      valid = compiledSchema(data);
-      if (!valid) {
-        console.error('Schema errors', compiledSchema.errors);
-        if (settings.validation == 'reject')
-          return Promise.reject( { schemaErrors: compiledSchema.errors } );
-      }
+      return validateUsingCompiledSchema(compiledSchema, data);
     });
 }

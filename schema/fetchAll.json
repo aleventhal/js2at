@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://js2at.org/FetchAll.json",
-  "title": "FetchAll",
+  "$id": "http://js2at.org/fetchAll.json",
+  "title": "fetchAll",
   "description": "Request all objects matching the pattern",
   "type": "object",
   "additionalProperties": false,
@@ -19,6 +19,7 @@
     "response": {
       "type": "object",
       "required": [ "objects" ],
+      "additionalProperties": false,
       "properties": {
         "objects": {
           "description": "Array of matching objects and their properties",
@@ -39,8 +40,7 @@
             }
           }
         }
-      },
-      "additionalProperties": false
+      }
     }
   }
 }

@@ -1,15 +1,3 @@
-/**
- * 1. Send and receive messages from the web page
- * 2. Send and receive messages from native messaging broker
- *    (uses native-messaging.js to do the actual work)
- */
-
-// TODO what happens if AT launches after page?
-// TODO one port per tab.
-
-let settings = {};
-let openRequests = {}; // Track open requests and the requestType for them.
-
 function getSettings() {
   return settings;
 }
@@ -32,7 +20,7 @@ chrome.storage.sync.get(['apiFilter', 'validation'], (storedSettings) => {
     settings.apiFilter === 'strict' ||
     settings.apiFilter === 'community' ||
     settings.apiFilter === 'experimental');
-  settings.apiFilter = settings.apiFilter || 'community';
+  settings.apiFilter = settings.apiFilter || 'experimental';
 
   console.assert(typeof settings.validation === 'undefined' ||
     settings.validation === 'none' ||
@@ -40,9 +28,3 @@ chrome.storage.sync.get(['apiFilter', 'validation'], (storedSettings) => {
     settings.validation === 'reject');
   settings.validation = settings.validation || 'reject';
 });
-
-// A port is connected, indicatingthat an object on the page is listening to
-// js2at requests.
-chrome.runtime.onConnect.addListener(onPagePortConnect);
-
-

@@ -19,10 +19,12 @@
   },
   "background": {
     "scripts": [
-      "src/bg/native-messaging.js",
-      "src/bg/background.js",
-      "src/bg/lib/ajv-schema-validator.js",
-      "src/bg/schema-manager.js"
+      "src/bg/settings.js",
+      "src/bg/internal-schema-definitions.js",
+      "src/bg/schema-manager.js",
+      "src/bg/at-messaging.js",
+      "src/bg/page-messaging.js",
+      "src/bg/lib/ajv-schema-validator.js"
     ],
     "persistent": true
   },

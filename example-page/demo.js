@@ -18,7 +18,7 @@ export default function js2AtDemo(Js2atRequest) {
     }
 
     // Use timeout to simulate what an async response may look like
-    fetchAll.timeout = setTimeout(respond, 50);
+    fetchAll.timeout = setTimeout(respond, 0);
 
     function respond() {
       const headings = document.querySelectorAll('h1');
