@@ -13,7 +13,7 @@ export default function js2AtDemo(Js2atRequest) {
     const detail = request.detail;
     if (!detail || detail.role !== 'heading') {
       // TODO programmatic error codes?
-      request.error({ error : 'Only headings handled'});
+      request.error('Only headings handled');
       return;
     }
 

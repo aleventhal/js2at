@@ -24,16 +24,6 @@ export default class Js2atObserverDelegate {
         this.complete(requestId, true);
         return;
       }
-      if (request.timeout) {
-        if (!Number.isInteger(request.timeout) || request.timeout <= 0)
-          throw new Error('Illegal timeout. Must be positive integer (ms).')
-        this.timeout = setTimeout(
-          () => {
-            this.complete(requestId, true, true);
-          },
-          request.timeout
-        );
-      }
 
       const target = Js2atUniqueIdManager.getTarget(request.targetUid);
       if (!target) {
@@ -64,8 +54,12 @@ export default class Js2atObserverDelegate {
             detail
           });
         },
-        completeImpl: (detail) => {
-          if (js2atHandler.complete(requestId)) {
+        completeImpl: (detail, isTimeout) => {
+          if (this.timeoutId) {
+            clearTimeout(this.timeoutId)
+            delete this.timeoutId;
+          }
+          if (js2atHandler.complete(requestId, isTimeout, isTimeout)) {
             const port = js2atHandler.ports.get(target);
             if (!port)
               return;
@@ -75,20 +69,19 @@ export default class Js2atObserverDelegate {
               detail
             });
           }
-        },
-        errorImpl: (errorDetail) => {
-          if (js2atHandler.complete(requestId)) {
-            const port = js2atHandler.ports.get(target);
-            if (!port)
-              return;
-            port.postMessage({
-              responseForRequestId: requestId,
-              isComplete: true,
-              detail: errorDetail
-            });
-          }
         }
       });
+      if (request.timeout) {
+        if (!Number.isInteger(request.timeout) || request.timeout <= 0)
+          console.error('Illegal timeout. Must be positive integer (ms).')
+        js2atRequest.timeoutId = setTimeout(
+          () => {
+            js2atRequest.completeImpl({ error: 'Timeout error' }, true);
+          },
+          request.timeout
+        );
+      }
+
       js2atHandler.pendingRequests.set(js2atRequest.requestId, js2atRequest);
       this.onRequest(js2atRequest);
     };
@@ -113,8 +106,6 @@ export default class Js2atObserverDelegate {
     if (isCancelled && this.onCancel) {
       this.onCancel(requestId, Boolean(isCancelledFromTimeout));
     }
-    if (request.timeout)
-      clearTimeout(request.timeout);
     this.pendingRequests.delete(requestId);
     return true;
   }

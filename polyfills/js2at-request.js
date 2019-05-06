@@ -27,9 +27,8 @@ export default class Js2atRequest {
     };
     this.error = (errorDetail) => {  // errorDetail is required.
       if (!errorDetail)
-        throw new Error('No errorDetail parameter provided');
-      this.errorImpl(errorDetail);
-      this.completeImpl();
+        console.error('No errorDetail parameter provided');
+      this.completeImpl({ error: errorDetail || 'General error'});
       this.isComplete = true;
     };
   }

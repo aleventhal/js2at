@@ -52,6 +52,7 @@ def get_role_request(role):
     # 'requestType': 'http://js2at.org/schema/fetchAll.json',
     'requestId': str(requestId),
     'targetUid': '1',
+    'timeout': 300,
     'detail': {
       'role': role
     }
