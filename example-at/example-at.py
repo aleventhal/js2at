@@ -21,7 +21,7 @@ def exchange_broker_messages_thread_func(messages_to_broker, socket, timers):
       try:
         then = timers[message['responseForRequestId']]
         elapsed = datetime.datetime.now() - then
-        elapsed_str = str(elapsed.total_seconds() * 1000)
+        elapsed_str = str(int(elapsed.total_seconds() * 1000))
       except:
         elapsed_str = '?'
       print 'Incoming response (elapsed time=%sms): %s' % (elapsed_str, message_from_broker)
