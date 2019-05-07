@@ -1,15 +1,27 @@
-let pagePort;
+let pagePorts = {};
 let openRequests = {}; // Track open requests and the requestType for them.
 
 function sendContentRequest(request) {
-  pagePort.postMessage(request);
+  if (pagePorts[request.targetDocId])
+    pagePorts[request.targetDocId].postMessage(request);
 }
 
-function onPageMessage(message) {
+function getDocId(port) {
+  return port.sender.tab.id.toString() + '.' + port.sender.frameId;
+}
+
+function onPageMessage(message, port, callback) {
   if (!ensureNativeConnection(onRequestFromAT))
     return;
   if (message['$command']) {
-    processInternalPageCommand(message);
+    message.appId = getUserAgentId();
+    message.docId = getDocId(port);
+    if (message['$command'] == 'initIds')
+      callback(message.appId, message.docId);
+    else {
+      console.log(message);
+      processInternalPageCommand(message);
+    }
     return;
   }
   else {
@@ -74,8 +86,22 @@ function onPagePortConnect(port) {
   if (port.name !== 'js2at')
     return;  // Not handled.
 
-  pagePort = port;
-  pagePort.onMessage.addListener(onPageMessage);
+  const docId = getDocId(port); // Also available: tab.windowId for containing window.
+  pagePorts[docId] = port;
+  port.onMessage.addListener(onPageMessage);
+  port.onDisconnect.addListener((port) => {
+    // TODO: cancel all pending requests (send error responses).
+    delete pagePorts[docId];
+  });
+
+  setTimeout(() => {
+    // After port connects, send it an initial hellp message with ids.
+    port.postMessage({
+      '$command': 'initIds',
+      appId: getUserAgentId(),
+      docId
+    });
+  }, 0);
 }
 
 // A port is connected, indicatingthat an object on the page is listening to

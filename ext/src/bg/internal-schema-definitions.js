@@ -4,7 +4,8 @@
 
 const kRequestSchema = {
   "type": "object",
-  "required": ["requestId", "requestType", "targetUid", "detail"],
+  "required": ["requestId", "requestType", "targetAppId", "targetDocId",
+    "targetUid", "detail"],
   "additionalProperties": false,
   "properties": {
     "requestId": {
@@ -12,6 +13,13 @@ const kRequestSchema = {
     },
     "requestType": {
       "type": "string",
+    },
+    "targetAppId": {
+      "type": "string",
+    },
+    "targetDocId": {
+      "description": "Corresponds a specific HTML document or frame",
+      "type": "string"
     },
     "targetUid": {
       "type": "string",
@@ -51,7 +59,7 @@ const kResponseSchema = {
 
 const kObserverChangeSchema = {
   "type": "object",
-  "required": ["$command", "type"],
+  "required": ["$command", "type", "appId", "docId", "uid"],
   "additionalProperties": false,
   "properties": {
     "$command": {
@@ -60,6 +68,13 @@ const kObserverChangeSchema = {
     },
     "type": {
       "description": "A url that defines requests and responses",
+      "type": "string"
+    },
+    "appId": {
+      "type": "string",
+    },
+    "docId": {
+      "description": "Corresponds a specific HTML document or frame",
       "type": "string"
     },
     "uid": {

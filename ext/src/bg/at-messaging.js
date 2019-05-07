@@ -1,11 +1,16 @@
 // Handle communication with the js2at native broker and process incoming requests.
 // TODO what happens if AT launches after page?
 // TODO handle multiple tabs.
+let nativePort;
 
 console.log('sendMessageToAT({ responseObj }) will send a message to an AT');
 console.log('onRequestFromAT({ requestObj }) will simulate a message from an AT');
 
-let nativePort;
+function getUserAgentId() {
+  getUserAgentId.id = getUserAgentId.id || Math.random().toString(26).substr(2);
+  return getUserAgentId.id;
+}
+
 function sendMessageToAT(message) {
   console.log('Sending to AT', message);
   nativePort.postMessage(message);
@@ -61,7 +66,10 @@ function onRequestFromAT(request) {
         return Promise.reject('Request |requestType| must be a URL that points to a JSON document, and has .json extension.');
 
       if (!cachedSchemas[request.requestType])
-        return Promise.reject('No observer for this requestType: ' + request.requestType);
+        return Promise.reject('No observer for this |requestType|: ' + request.requestType);
+
+      if (request.targetUserAgentId !== userAgentId)
+        return Promise.reject('The |targetUserAgentId| does not match');
     })
     .then(() => {
       return validateUsingSchemaUrl(request.requestType, { request: request.detail })

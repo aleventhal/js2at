@@ -30,6 +30,14 @@ function receivePort(event) {
     }
 
     backgroundScriptPort.onMessage.addListener((data) => {
+      if (data['$command']) {
+        if (data['$command'] === 'initIds') {
+          // Temporary hack so that the AT can discover the app and frameId and know
+          // where to send information.
+          document.documentElement.id = 'js2at:' + data.appId + ':' + data.docId;
+        }
+        return;
+      }
       console.log('Content script sending to page', data)
       receivePort.pageScriptPort.postMessage(data);  // Unused params: sender, sendResponseCallback.
     });
