@@ -43,9 +43,9 @@ def get_role_request(role):
 	global requestId
 	requestId += 1
 	request = {
-		'requestType': 'http://js2at.org/schema/fetchAll.json',
+		'pattern': 'http://js2at.org/schema/fetchAll.json',
 		'requestId': str(requestId),
-		'targetUid': '1',
+		'uid': '1',
 		'detail': {
 			'role': role
 		}
@@ -74,7 +74,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
-		pass 
+		pass
 
 	@script(gesture = "kb:nvda+alt+f7",
 	description = "js2at thing")

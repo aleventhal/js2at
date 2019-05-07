@@ -1,9 +1,12 @@
 let pagePorts = {};
-let openRequests = {}; // Track open requests and the requestType for them.
+let openRequests = {}; // Track open requests and the pattern for them.
 
 function sendContentRequest(request) {
-  if (pagePorts[request.targetDocId])
-    pagePorts[request.targetDocId].postMessage(request);
+  console.log('Send to content', request);
+  if (pagePorts[request.docId]) {
+    console.log('Send to content #2');
+    pagePorts[request.docId].postMessage(request);
+  }
 }
 
 function getDocId(port) {
@@ -35,9 +38,9 @@ function processInternalPageCommand(message) {
   // A $command is something internal, sent by js2at infrastructure.
   if (internalCommand === 'observerAdded') {
     validateUsingInternalSchema('observerChange', kObserverChangeSchema, message)
-    .then(loadSchema(message.type))
+    .then(loadSchema(message.pattern))
     .then(() => {
-      console.log('Page connected a requestType + target', message);
+      console.log('Page connected a pattern + target uid', message);
       sendMessageToAT(message);
     })
     .catch((err) => { sendGeneratedErrorResponseToAT(err, message.responseForRequestId ); });
@@ -45,11 +48,11 @@ function processInternalPageCommand(message) {
   else if (internalCommand == 'observerRemoved') {
     validateUsingInternalSchema('observerChange', kObserverChangeSchema, message)
     .then(() => {
-      if (!hasSchema(type)) {  // TODO track by object in a given page?
-        console.error('Attempting to remove a schema that was never loaded: ' + type);
+      if (!hasSchema(message.pattern)) {  // TODO track by object in a given page?
+        console.error('Attempting to remove a schema that was never loaded: ' + message.pattern);
       }
       else {
-        console.log('Page removed a requestType + target', message);
+        console.log('Page removed a pattern + target uid', message);
         sendMessageToAT(message);
       }
     })
@@ -62,8 +65,8 @@ function processInternalPageCommand(message) {
 function sendPageResponseOrError(response) {
   validateUsingInternalSchema('response', kResponseSchema, response)
   .then(() => {
-    const requestType = openRequests[response.responseForRequestId];
-    if (!requestType)
+    const pattern = openRequests[response.responseForRequestId];
+    if (!pattern)
       return Promise.reject('The |responseForRequestId| did not correspond to an open response');
 
     if (response.isComplete)
@@ -75,7 +78,7 @@ function sendPageResponseOrError(response) {
       console.assert(response.isComplete === true);
       return response
     }
-    return validateUsingSchemaUrl(requestType, { response: response.detail });
+    return validateUsingSchemaUrl(pattern, { response: response.detail });
   })
   .then(() => { sendMessageToAT(response); })
   .catch((err) => { sendGeneratedErrorResponseToAT(err, response.responseForRequestId ); });

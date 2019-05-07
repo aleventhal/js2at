@@ -1,6 +1,6 @@
 /* eslint parserOptions: ["sourceType", "module"] */
-// Singleton that manages message ports mapped by target x requestType.
-// Only one port is allowed for each target x requestType combination, which
+// Singleton that manages message ports mapped by target uid x pattern.
+// Only one port is allowed for each target uid x pattern combination, which
 // means that an error will be thrown if a website tries to observe the same
 // type of request on the same object twice. The reason for this restriction
 // is that having multiple listeners could cause race condition bugs where
@@ -43,7 +43,7 @@ class Js2atMessagePortManager {
       this.js2atMessagePorts.set(uid, mapByUid);
     }
     if (mapByUid.has(type))
-      throw new Error('Js2at observer already exists for this target and type.');
+      throw new Error('Js2at observer already exists for this uid and pattern.');
     mapByUid.set(type, port);
   }
 
@@ -56,7 +56,7 @@ class Js2atMessagePortManager {
       return;
     }
     if (!mapByUid.has(type))
-      console.error('No js2at ports to remove for this uid and type.');
+      console.error('No js2at ports to remove for this uid and pattern.');
     mapByUid.delete(type);
   }
 
@@ -76,16 +76,16 @@ class Js2atMessagePortManager {
 
   onMessageFromExtension(message) {
     const data = message.data;
-    console.assert(data.requestType);
-    console.assert(data.targetUid);
-    const js2atMessagePort = this.getPort(data.requestType, data.targetUid);
+    console.assert(data.pattern);
+    console.assert(data.uid);
+    const js2atMessagePort = this.getPort(data.pattern, data.uid);
     if (!js2atMessagePort) {
       if (data.requestId) {
         this.sendMessageToExtension({
           responseForRequestId: data.requestId,
           isComplete: true,
           detail: {
-            error: 'No js2at observer for this targetUid and requestType.'
+            error: 'No js2at observer for this uid and pattern.'
           }
         });
       }

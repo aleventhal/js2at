@@ -13,19 +13,19 @@ export default class Js2atObserverDelegate {
   // Promise failure handling
 
   // Connect to automation server so that we can listen to events
-  constructor(requestType, onRequest, onCancel) {
+  constructor(pattern, onRequest, onCancel) {
     this.onMessage = (request) => {
       // Request received from browser extension.
       const requestId = request.requestId;
       if (!requestId)
         throw new Error('Request received without request id');
       if (request.cancel) {
-        console.log('Js2at ' + request.type + ' request has been cancelled');
+        console.log('Js2at ' + request.pattern + ' request has been cancelled');
         this.complete(requestId, true);
         return;
       }
 
-      const target = Js2atUniqueIdManager.getTarget(request.targetUid);
+      const target = Js2atUniqueIdManager.getTarget(request.uid);
       if (!target) {
         console.error('Js2at target not found');
         return;
@@ -35,9 +35,9 @@ export default class Js2atObserverDelegate {
       }
       const js2atHandler = this;
       const js2atRequest = new Js2atRequest({
-        type: js2atHandler.type,
+        pattern: js2atHandler.pattern,
         requestId,
-        targetUid: request.targetUid,
+        uid: request.uid,
         detail: request.detail,
         multiSend: request.multiSend,
         sendOneImpl: (detail) => {
@@ -86,8 +86,8 @@ export default class Js2atObserverDelegate {
       this.onRequest(js2atRequest);
     };
 
-    console.assert(requestType instanceof URL);
-    this.type = requestType.toString();  // Convert URL to serializable string.
+    console.assert(pattern instanceof URL);
+    this.pattern = pattern.toString();  // Convert URL to serializable string.
     this.onRequest = onRequest;
     this.onCancel = onCancel;
     this.ports = new WeakMap(); // Map from event target to port
@@ -120,15 +120,14 @@ export default class Js2atObserverDelegate {
       if (this.pendingRequests) {
         // For any pending requests with the same uid, respond with error.
         for (request of this.pendingRequests) {
-          if (request.targetUid === port.uid)
+          if (request.uid === port.uid)
             request.error({ error: 'Js2at observer disconnected'});
         }
       }
-      const targetUid = port.uid;
       this.ports.delete(Js2atUniqueIdManager.getTarget(port.uid));
     };
     // This will not allow multiple observers for the same type x uid combo.
-    const port = new Js2atMessagePort(this.type, uid, this.onMessage,
+    const port = new Js2atMessagePort(this.pattern, uid, this.onMessage,
       onPortDisconnected);
     this.ports.set(eventTarget, port);
   }

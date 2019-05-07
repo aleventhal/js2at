@@ -6,7 +6,7 @@ import Js2atUniqueIdManager from './js2at-unique-id-manager.js';
 export default class Js2atObserver {
   constructor(type, onRequest, onCancel) {
     if (type instanceof URL === false)
-      throw new Error('A Js2at requestType of type URL must be supplied.');
+      throw new Error('A Js2at pattern of type URL must be supplied.');
     this.type = type;
 
     if (typeof onRequest !== 'function')

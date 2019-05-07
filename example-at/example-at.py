@@ -55,13 +55,14 @@ def get_role_request(role):
   global requestId
   requestId += 1
   request = {
-    # Temporarily use hacky schema url location, until we serve the schemas:
-    'requestType': 'https://raw.githack.com/aleventhal/js2at/master/schema/fetchAll.json',
-    # 'requestType': 'http://js2at.org/schema/fetchAll.json',
     'requestId': str(requestId),
-    'targetAppId': ids['appId'],
-    'targetDocId': ids['docId'],
-    'targetUid': '1',
+    # Temporarily use hacky schema url location, until we serve the schemas.
+    # Eventually use something nice like:
+    # 'pattern': 'http://js2at.org/schema/fetchAll.json',
+    'pattern': 'https://raw.githack.com/aleventhal/js2at/master/schema/fetchAll.json',
+    'appId': ids['appId'],
+    'docId': ids['docId'],
+    'uid': '1',
     'timeout': 300,
     'detail': {
       'role': role

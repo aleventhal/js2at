@@ -5,28 +5,28 @@
 import Js2atMessagePortManager from './js2at-message-port-manager.js';
 
 export default class Js2atMessagePort {
-  constructor(type, uid, onRequestCallback, onDisconnectCallback) {
-    this.type = type;
+  constructor(pattern, uid, onRequestCallback, onDisconnectCallback) {
+    this.pattern = pattern;
     this.uid = uid;
     this.onRequest = onRequestCallback;
     this.onDisconnect = () => {
       onDisconnectCallback(this);
       Js2atMessagePortManager.sendMessageToExtension({
         "$command": "observerRemoved",
-        type,
+        pattern,
         uid
       });
     }
-    Js2atMessagePortManager.setPort(type, uid, this);
+    Js2atMessagePortManager.setPort(pattern, uid, this);
     Js2atMessagePortManager.sendMessageToExtension({
       "$command": "observerAdded",
-      type,
+      pattern,
       uid
     });
   }
 
   disconnect() {
-    Js2atMessagePortManager.removePort(this.type, this.uid);
+    Js2atMessagePortManager.removePort(this.pattern, this.uid);
     this.onDisconnect();
   }
 

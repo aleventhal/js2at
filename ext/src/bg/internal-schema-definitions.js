@@ -4,24 +4,23 @@
 
 const kRequestSchema = {
   "type": "object",
-  "required": ["requestId", "requestType", "targetAppId", "targetDocId",
-    "targetUid", "detail"],
+  "required": ["requestId", "pattern", "appId", "docId", "uid", "detail"],
   "additionalProperties": false,
   "properties": {
     "requestId": {
       "type": "string",
     },
-    "requestType": {
+    "pattern": {
       "type": "string",
     },
-    "targetAppId": {
+    "appId": {
       "type": "string",
     },
-    "targetDocId": {
+    "docId": {
       "description": "Corresponds a specific HTML document or frame",
       "type": "string"
     },
-    "targetUid": {
+    "uid": {
       "type": "string",
     },
     "timeout": {
@@ -59,14 +58,14 @@ const kResponseSchema = {
 
 const kObserverChangeSchema = {
   "type": "object",
-  "required": ["$command", "type", "appId", "docId", "uid"],
+  "required": ["$command", "pattern", "appId", "docId", "uid"],
   "additionalProperties": false,
   "properties": {
     "$command": {
       "type": "string",
       "enum": [ "observerAdded", "observerRemoved" ]
     },
-    "type": {
+    "pattern": {
       "description": "A url that defines requests and responses",
       "type": "string"
     },

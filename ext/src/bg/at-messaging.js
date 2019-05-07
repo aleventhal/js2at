@@ -62,22 +62,21 @@ function onRequestFromAT(request) {
       if (openRequests[request.requestId]) {
         return Promise.reject('The |requestId| ' + request.requestId + ' was used more than once');
       }
-      const url = new URL(request.requestType);  // Ensure parsable as URL.
+      const url = new URL(request.pattern);  // Ensure parsable as URL.
       if (!url.pathname.endsWith('.json'))
-        return Promise.reject('Request |requestType| must be a URL that points to a JSON document, and has .json extension.');
+        return Promise.reject('Request |pattern| must be a URL that points to a JSON document, and has .json extension.');
 
-      if (!cachedSchemas[request.requestType])
-        return Promise.reject('No observer for this |requestType|: ' + request.requestType);
+      if (!cachedSchemas[request.pattern])
+        return Promise.reject('No observer for this |pattern|: ' + request.pattern);
 
-      if (request.targetAppId !== getAppId())
-        return Promise.reject('The |targetAppId| does not match the current app id');
+      if (request.appId !== getAppId())
+        return Promise.reject('The |appId| does not match the current app id');
     })
     .then(() => {
-      return validateUsingSchemaUrl(request.requestType, { request: request.detail })
+      return validateUsingSchemaUrl(request.pattern, { request: request.detail })
     })
     .then(() => {
-      openRequests[request.requestId] = request.requestType;
-      console.log(openRequests[request.requestId]);
+      openRequests[request.requestId] = request.pattern;
       sendContentRequest(request);
     })
    .catch((err) => { sendGeneratedErrorResponseToAT(err, request.requestId ); });

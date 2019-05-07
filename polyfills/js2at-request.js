@@ -7,7 +7,7 @@ export default class Js2atRequest {
     // Instead of manually copying each field, set the prototype.
     Object.setPrototypeOf(this, initObj);
 
-    this.target = Js2atUniqueIdManager.getTarget(this.targetUid);
+    this.target = Js2atUniqueIdManager.getTarget(this.uid);
 
     if (this.multiSend) {
       // Only provide sendOne() callback when it's possible to send more.
