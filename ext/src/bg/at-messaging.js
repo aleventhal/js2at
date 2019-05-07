@@ -6,9 +6,10 @@ let nativePort;
 console.log('sendMessageToAT({ responseObj }) will send a message to an AT');
 console.log('onRequestFromAT({ requestObj }) will simulate a message from an AT');
 
-function getUserAgentId() {
-  getUserAgentId.id = getUserAgentId.id || Math.random().toString(26).substr(2);
-  return getUserAgentId.id;
+// This is the id that will be passed in the appId field.
+function getAppId() {
+  getAppId.id = getAppId.id || Math.random().toString(26).substr(2);
+  return getAppId.id;
 }
 
 function sendMessageToAT(message) {
@@ -68,8 +69,8 @@ function onRequestFromAT(request) {
       if (!cachedSchemas[request.requestType])
         return Promise.reject('No observer for this |requestType|: ' + request.requestType);
 
-      if (request.targetUserAgentId !== userAgentId)
-        return Promise.reject('The |targetUserAgentId| does not match');
+      if (request.targetAppId !== getAppId())
+        return Promise.reject('The |targetAppId| does not match the current app id');
     })
     .then(() => {
       return validateUsingSchemaUrl(request.requestType, { request: request.detail })

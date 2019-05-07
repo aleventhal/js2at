@@ -14,7 +14,7 @@ function onPageMessage(message, port, callback) {
   if (!ensureNativeConnection(onRequestFromAT))
     return;
   if (message['$command']) {
-    message.appId = getUserAgentId();
+    message.appId = getAppId();
     message.docId = getDocId(port);
     if (message['$command'] == 'initIds')
       callback(message.appId, message.docId);
@@ -98,7 +98,7 @@ function onPagePortConnect(port) {
     // After port connects, send it an initial hellp message with ids.
     port.postMessage({
       '$command': 'initIds',
-      appId: getUserAgentId(),
+      appId: getAppId(),
       docId
     });
   }, 0);

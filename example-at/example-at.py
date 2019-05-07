@@ -12,8 +12,9 @@ import datetime
 requestId = 0   # Incremented for each new message.
 messages_to_broker = collections.deque()   # Outgoing message queue.
 timers = {};
+ids = {};
 
-def exchange_broker_messages_thread_func(messages_to_broker, socket, timers):
+def exchange_broker_messages_thread_func(messages_to_broker, socket, timers, ids):
   while 1:
     try:
       message_from_broker = socket.recv_string(flags=zmq.NOBLOCK)
@@ -24,6 +25,13 @@ def exchange_broker_messages_thread_func(messages_to_broker, socket, timers):
         elapsed_str = str(int(elapsed.total_seconds() * 1000))
       except:
         elapsed_str = '?'
+      try:
+        if (message['$command'] == 'observerAdded'):
+          ids['appId'] = message['appId']
+          ids['docId'] = message['docId']
+          print '*** appid=%s docId=%s' % (appId, docId)
+      except:
+        pass
       print 'Incoming response (elapsed time=%sms): %s' % (elapsed_str, message_from_broker)
     except zmq.error.Again:
       pass
@@ -51,6 +59,8 @@ def get_role_request(role):
     'requestType': 'https://raw.githack.com/aleventhal/js2at/master/schema/fetchAll.json',
     # 'requestType': 'http://js2at.org/schema/fetchAll.json',
     'requestId': str(requestId),
+    'targetAppId': ids['appId'],
+    'targetDocId': ids['docId'],
     'targetUid': '1',
     'timeout': 300,
     'detail': {
@@ -84,7 +94,7 @@ def Main():
   """)
 
   # Handle all port messaging on a single thread.
-  exchange_broker_messages_thread = threading.Thread(target=exchange_broker_messages_thread_func, args=(messages_to_broker, socket, timers))
+  exchange_broker_messages_thread = threading.Thread(target=exchange_broker_messages_thread_func, args=(messages_to_broker, socket, timers, ids))
   exchange_broker_messages_thread.daemon = True
   exchange_broker_messages_thread.start()
 
