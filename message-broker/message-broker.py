@@ -77,7 +77,8 @@ def Main():
   # Get port number, use --port=[portnum] or will use default port.
   parser = argparse.ArgumentParser()
   parser.add_argument('chrome-extension', nargs='?')
-  parser.add_argument('--parent-window', type=int)
+  # Incorred hwnd  because the message-broker is launched by a background page:
+  # parser.add_argument('--parent-window', type=int)
   parser.add_argument('--port', '-p')
   args = parser.parse_args()
   port = '18323'
