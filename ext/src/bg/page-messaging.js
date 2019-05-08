@@ -1,112 +1,127 @@
-let pagePorts = {};
-let openRequests = {}; // Track open requests and the pattern for them.
+import AtMessaging from './at-messaging.js';
+import SchemaManager from './schema-manager.js';
+import RequestManager from './request-manager.js';
 
-function sendContentRequest(request) {
-  console.log('Send to content', request);
-  if (pagePorts[request.docId]) {
-    console.log('Send to content #2');
-    pagePorts[request.docId].postMessage(request);
+class PageMessaging {
+  constructor() {
+    this.pagePorts = {};  // Indexed by docId.
+    chrome.runtime.onConnect.addListener((port) => this.onPagePortConnect(port));
   }
-}
 
-function getDocId(port) {
-  return port.sender.tab.id.toString() + '.' + port.sender.frameId;
-}
-
-function onPageMessage(message, port, callback) {
-  if (!ensureNativeConnection(onRequestFromAT))
-    return;
-  if (message['$command']) {
-    message.appId = getAppId();
-    message.docId = getDocId(port);
-    if (message['$command'] == 'initIds')
-      callback(message.appId, message.docId);
-    else {
-      console.log(message);
-      processInternalPageCommand(message);
+  sendContentRequest(request) {
+    console.log('Send to content', request);
+    const pagePort = this.pagePorts[request.docId];
+    if (pagePort) {
+      console.log('Send to content #2');
+      pagePort.postMessage(request);
     }
-    return;
   }
-  else {
-    console.log('Page message:', message);
-    sendPageResponseOrError(message);
-  }
-}
 
-function processInternalPageCommand(message) {
-  internalCommand = message['$command'];
-  // A $command is something internal, sent by js2at infrastructure.
-  if (internalCommand === 'observerAdded') {
-    validateUsingInternalSchema('observerChange', kObserverChangeSchema, message)
-    .then(loadSchema(message.pattern))
-    .then(() => {
-      console.log('Page connected a pattern + target uid', message);
-      sendMessageToAT(message);
-    })
-    .catch((err) => { sendGeneratedErrorResponseToAT(err, message.responseForRequestId ); });
+  getDocId(port) {
+    return port.sender.tab.id.toString() + '.' + port.sender.frameId;
   }
-  else if (internalCommand == 'observerRemoved') {
-    validateUsingInternalSchema('observerChange', kObserverChangeSchema, message)
-    .then(() => {
-      if (!hasSchema(message.pattern)) {  // TODO track by object in a given page?
-        console.error('Attempting to remove a schema that was never loaded: ' + message.pattern);
-      }
+
+  onPageMessage(message, port, callback) {
+    if (!AtMessaging.ensureNativeConnection())
+      return;
+    // Add automatically populated fields.
+    message.appId = AtMessaging.getAppId();
+    message.docId = this.getDocId(port);
+
+    if (message['$command']) {
+      if (message['$command'] == 'initIds')
+        callback(message.appId, message.docId);
       else {
-        console.log('Page removed a pattern + target uid', message);
-        sendMessageToAT(message);
+        console.log(message);
+        this.processInternalPageCommand(message);
       }
-    })
-    .catch((err) => { sendGeneratedErrorResponseToAT(err, message.responseForRequestId ); });
-  }
-  else
-    console.error('Unsupported internal command: ' + internalCommand);
-}
-
-function sendPageResponseOrError(response) {
-  validateUsingInternalSchema('response', kResponseSchema, response)
-  .then(() => {
-    const pattern = openRequests[response.responseForRequestId];
-    if (!pattern)
-      return Promise.reject('The |responseForRequestId| did not correspond to an open response');
-
-    if (response.isComplete)
-      delete openRequests[response.responseForRequestId];
-
-    if (response.detail.error) {
-      // Error detail is not currently validated, just returned.
-      // TODO Build internal schema for detail: { error } case.
-      console.assert(response.isComplete === true);
-      return response
+      return;
     }
-    return validateUsingSchemaUrl(pattern, { response: response.detail });
-  })
-  .then(() => { sendMessageToAT(response); })
-  .catch((err) => { sendGeneratedErrorResponseToAT(err, response.responseForRequestId ); });
-}
+    else {
+      console.log('Page message:', message);
+      this.sendPageResponseOrError(message);
+    }
+  }
 
-function onPagePortConnect(port) {
-  // TODO Manage tabs. Add disconnect handler.
-  if (port.name !== 'js2at')
-    return;  // Not handled.
+  processInternalPageCommand(message) {
+    const internalCommand = message['$command'];
+    // A $command is something internal, sent by js2at infrastructure.
+    if (internalCommand === 'observerAdded') {
+      SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/observer-change.json'), message)
+      .then(SchemaManager.loadSchema(message.pattern))
+      .then(() => {
+        console.log('Page connected a pattern + target uid', message);
+        AtMessaging.sendMessage(message);
+      })
+      .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId ); });
+    }
+    else if (internalCommand == 'observerRemoved') {
+      SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/observer-change.json'), message)
+      .then(() => {
+        if (!SchemaManager.hasSchema(message.pattern)) {  // TODO track by object in a given page?
+          console.error('Attempting to remove a schema that was never loaded: ' + message.pattern);
+        }
+        else {
+          console.log('Page removed a pattern + target uid', message);
+          AtMessaging.sendMessage(message);
+        }
+      })
+      .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId ); });
+    }
+    else
+      throw new Error('Unsupported internal command: ' + internalCommand);
+  }
 
-  const docId = getDocId(port); // Also available: tab.windowId for containing window.
-  pagePorts[docId] = port;
-  port.onMessage.addListener(onPageMessage);
-  port.onDisconnect.addListener((port) => {
-    // TODO: cancel all pending requests (send error responses).
-    delete pagePorts[docId];
-  });
+  sendPageResponseOrError(response) {
+    const request = RequestManager.getRequest(response.responseId, response.responseForRequestId);
+    if (!request)
+      return Promise.reject('Could not find corresponding open request for this |responseForRequestId| and |docId|');
 
-  setTimeout(() => {
-    // After port connects, send it an initial hellp message with ids.
-    port.postMessage({
-      '$command': 'initIds',
-      appId: getAppId(),
-      docId
+    SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/response.json'), response)
+    .then(() => {
+      if (response.isComplete)
+        RequestManager.closeRequest(response.docId, response.responseForRequestId);
+
+      if (response.detail.error) {
+        // Error detail is not currently validated, just returned.
+        // TODO Build internal schema for detail: { error } case.
+        console.assert(response.isComplete === true);
+        return response;
+      }
+      return SchemaManager.validateUsingSchemaUrl(request.pattern, { response: response.detail });
+    })
+    .then(() => { AtMessaging.sendMessage(response); })
+    .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, response.docId, response.responseForRequestId ); });
+  }
+
+  onPagePortConnect(port) {
+    // TODO Manage tabs. Add disconnect handler.
+    if (port.name !== 'js2at')
+      return;  // Not handled.
+
+    // A port is connected, indicating that an object on the page is listening to
+    // js2at requests.
+    const docId = this.getDocId(port); // Also available: tab.windowId for containing window.
+    console.assert(!this.pagePorts[docId], "A page port was already connected for this docId");
+    this.pagePorts[docId] = port;
+    port.onMessage.addListener((message, port, callback) =>
+      this.onPageMessage(message, port, callback));
+    port.onDisconnect.addListener((port) => {
+      // TODO: cancel all pending requests (send error responses).
+      // TODO: send observerRemoved (do this in the polyfill?)
+      delete this.pagePorts[docId];
+      RequestManager.closeDoc(docId);
     });
-  }, 0);
+
+    setTimeout(() => {
+      // After port connects, send it an initial hellp message with ids.
+      port.postMessage({
+        '$command': 'initIds',
+        appId: AtMessaging.getAppId(),
+        docId
+      });
+    }, 0);
+  }
 }
 
-// A port is connected, indicatingthat an object on the page is listening to
-// js2at requests.
-chrome.runtime.onConnect.addListener(onPagePortConnect);
+export default new PageMessaging();

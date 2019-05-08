@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["$command", "pattern", "appId", "docId", "uid"],
+  "additionalProperties": false,
+  "properties": {
+    "$command": {
+      "type": "string",
+      "enum": [ "observerAdded", "observerRemoved" ]
+    },
+    "pattern": {
+      "description": "A url that defines requests and responses",
+      "type": "string"
+    },
+    "appId": {
+      "type": "string"
+    },
+    "docId": {
+      "description": "Corresponds a specific HTML document or frame",
+      "type": "string"
+    },
+    "uid": {
+      "description": "The object that is listening and responding to requests of this type",
+      "type": "string"
+    }
+  }
+}

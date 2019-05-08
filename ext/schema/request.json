@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["requestId", "pattern", "appId", "docId", "uid", "detail"],
+  "additionalProperties": false,
+  "properties": {
+    "requestId": {
+      "type": "string"
+    },
+    "pattern": {
+      "type": "string"
+    },
+    "appId": {
+      "type": "string"
+    },
+    "docId": {
+      "description": "Corresponds a specific HTML document or frame",
+      "type": "string"
+    },
+    "uid": {
+      "type": "string"
+    },
+    "timeout": {
+      "description": "Time in ms before request is automatically cancelled",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "multiSend": {
+      "description": "Can multiple responses be sent for the same request?",
+      "type": "boolean"
+    },
+    "detail": {
+      "type": "object"
+    }
+  }
+}

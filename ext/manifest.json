@@ -18,14 +18,7 @@
     "default_title": "Js2at Enhanced Accessibility Bridge"
   },
   "background": {
-    "scripts": [
-      "src/bg/settings.js",
-      "src/bg/internal-schema-definitions.js",
-      "src/bg/schema-manager.js",
-      "src/bg/at-messaging.js",
-      "src/bg/page-messaging.js",
-      "src/bg/lib/ajv-schema-validator.js"
-    ],
+    "page": "src/bg/background.html",
     "persistent": true
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
