@@ -17,7 +17,7 @@ function receivePort(event) {
   const kExtensionId = 'jpgoldinadnmhfknenolkgbnockemnid';
   const backgroundScriptPort = chrome.runtime.connect(kExtensionId, {
     name: 'js2at',  // Could pass info through this way.
-    includeTlsChannelId: false  // TODO better understand this
+    // includeTlsChannelId: false  // TODO better understand this
   });
   if (chrome.runtime.lastError) {
     console.error(chrome.runtime.lastError);
