@@ -10,12 +10,18 @@ Js2at currently requires 4 things:
 
 ## Installation
 
-1. Install the native messaging host
+1. Install the message broker
+
+The message broker passes messages back and forth between an AT and the browser.
 
 On Windows, run message-broker/install-broker-win.bat
 Otherwise, run message-broker/install-broker.sh
 
-The native messaging host installer does not yet support Firefox.
+The message broker installer does not yet support Firefox or Edge.
+
+It is not necessary or useful on Chrome OS, which will need a different
+mechanism for communicating with ATs, since they are non-native and
+essentially browser extensions.
 
 2. Install the extension
 
