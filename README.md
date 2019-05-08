@@ -50,14 +50,4 @@ message-broker.log in the same directory as the messaging host.
 Alternatively, launch chrome from a terminal to view logging output there.
 - The example AT logs to stdout.
 
-## The other polyfill
-
-The hidden input polyfill is currently broken.
-
-This is an older polyfill that uses hidden inputs instead of an extension is provided,
-but the code has not been converted over
-to using the Js2atObserver/Js2atRequest model. The hidden input polyfill
-uses invisible input fields to communicate with the AT.
-
-There is also a C++ client under tools was used for the hidden input polyfill.
 
