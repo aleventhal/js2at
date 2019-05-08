@@ -1,7 +1,0 @@
-class RequestManager {
-  constructor {
-    this.openRequests = {};  // indexed by docId:requestId
-  }
-
-
-}
