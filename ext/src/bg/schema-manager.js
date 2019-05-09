@@ -1,6 +1,6 @@
 import Settings from './settings.js';
 
-const kUseLocalSchemas = true;  // For debugging schemas on localhost.
+const kUseLocalSchemas = false;  // For debugging schemas on localhost.
 
 class SchemaManager {
   constructor() {
