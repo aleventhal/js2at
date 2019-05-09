@@ -7,6 +7,11 @@ class Js2atUniqueIdManager {
     this.uidToTarget = new Map();
     this.counter = 0;
     this.uidRemovedCallbacks = [];
+
+    window.addEventListener('beforeunload', () => {
+      for (let [uid, target] of this.uidToTarget.entries())
+        this.remove(target, uid);
+    });
   }
 
   addUidRemovedListener(callback) {

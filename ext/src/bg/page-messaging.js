@@ -32,7 +32,6 @@ class PageMessaging {
       if (message['$command'] == 'initIds')
         callback(message.appId, message.docId);
       else {
-        console.log(message);
         this.processInternalPageCommand(message);
       }
       return;
@@ -58,6 +57,11 @@ class PageMessaging {
     else if (internalCommand == 'observerRemoved') {
       SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/observer-change.json'), message)
       .then(() => {
+        // Cancel all open requests for this observer.
+        const openRequestIds = RequestManager.getRequests(internalCommand.docId, internalCommand.pattern, internalCommand.uid);
+        for (openRequestId of openRequestIds)
+          AtMessaging.sendGeneratedErrorResponse('Cancelled because observer removed', internalCommand.docId, openRequestId);
+        // Sanity check, check if schema was loaded.
         if (!SchemaManager.hasSchema(message.pattern)) {  // TODO track by object in a given page?
           console.error('Attempting to remove a schema that was never loaded: ' + message.pattern);
         }
@@ -73,15 +77,12 @@ class PageMessaging {
   }
 
   sendPageResponseOrError(response) {
-    const request = RequestManager.getRequest(response.responseId, response.responseForRequestId);
+    const request = RequestManager.getRequest(response.docId, response.responseForRequestId);
     if (!request)
       return Promise.reject('Could not find corresponding open request for this |responseForRequestId| and |docId|');
 
     SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/response.json'), response)
     .then(() => {
-      if (response.isComplete)
-        RequestManager.closeRequest(response.docId, response.responseForRequestId);
-
       if (response.detail.error) {
         // Error detail is not currently validated, just returned.
         // TODO Build internal schema for detail: { error } case.
@@ -110,7 +111,6 @@ class PageMessaging {
       // TODO: cancel all pending requests (send error responses).
       // TODO: send observerRemoved (do this in the polyfill?)
       delete this.pagePorts[docId];
-      RequestManager.closeDoc(docId);
     });
 
     setTimeout(() => {

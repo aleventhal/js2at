@@ -3,6 +3,7 @@
 
 import SchemaManager from './schema-manager.js';
 import RequestManager from './request-manager.js';
+import PageMessaging from './page-messaging.js';
 
 class AtMessaging {
   constructor() {
@@ -18,6 +19,8 @@ class AtMessaging {
   sendMessage(message) {
     console.assert(this.nativePort);
     console.log('Sending to AT', message);
+    // if (message.isComplete)
+    //   RequestManager.closeRequest(message.docId, message.responseForRequestId);
     this.nativePort.postMessage(message);
   }
 
@@ -47,9 +50,6 @@ class AtMessaging {
   }
 
   sendGeneratedErrorResponse(error, docId, requestId) {
-    if (typeof docId !== 'undefined' && typeof requestId !== 'undefined') {
-      RequestManager.closeRequest(docId, requestId);
-    }
     this.sendMessage({
       responseForRequestId: requestId,
       appId: this.getAppId(),
@@ -83,7 +83,7 @@ class AtMessaging {
         return SchemaManager.validateUsingSchemaUrl(request.pattern, { request: request.detail })
       })
       .then(() => {
-        sendContentRequest(request);
+        PageMessaging.sendContentRequest(request);
       })
      .catch((err) => { this.sendGeneratedErrorResponse(err, request.docId, request.requestId ); });
   }

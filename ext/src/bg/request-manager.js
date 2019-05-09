@@ -1,28 +1,37 @@
 class RequestManager {
   constructor() {
     this.openRequests = {};  // indexed by [docId][requestId]
+    this.byDocPatternUid = {};
   }
 
   openRequest(docId, requestId, request) {
     if (!this.openRequests[docId])
       this.openRequests[docId] = {};
     this.openRequests[docId][requestId] = request;
+
+    const key = docId + '\n' + request.pattern + '\n' + request.uid;
+    this.byDocPatternUid[key] = this.byDocPatternUid[key] || new Set();
+    this.byDocPatternUid[key].add(request.requestId);
   }
 
   closeRequest(docId, requestId) {
     console.assert(this.openRequests[docId]);
-    console.assert(this.openRequests[docId][requestId]);
+    const request = this.openRequests[docId][requestId];
+    console.assert(request);
+
     delete this.openRequests[docId][requestId];
+    const key = docId + '\n' + request.pattern + '\n' + request.uid;
+    if (this.byDocPatternUid[key])
+      this.byDocPatternUid[key].delete(requestId);
+  }
+
+  getRequests(docId, pattern, uid) {
+    const key = docId + '\n' + pattern + '\n' + uid;
+    return this.byDocPatternUid[key] || [];
   }
 
   getRequest(docId, requestId) {
     return this.openRequests[docId] && this.openRequests[docId][requestId];
-  }
-
-  closeDoc(docId) {
-    // TODO hook up a caller
-    // TODO should send cancelled messages?
-    delete this.openRequests[docId];
   }
 }
 
