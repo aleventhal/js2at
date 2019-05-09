@@ -1,10 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "An informational message sent by js2at infrastructure to an AT, that does not have a corresponding request",
   "type": "object",
   "required": ["$command", "pattern", "appId", "docId", "uid"],
   "additionalProperties": false,
   "properties": {
     "$command": {
+      "description": "The type of schema change, observerAdded or observerRemoved",
       "type": "string",
       "enum": [ "observerAdded", "observerRemoved" ]
     },
@@ -13,14 +15,15 @@
       "type": "string"
     },
     "appId": {
+      "description": "An automatically populated id corresponding to the host browser or other application serving the content",
       "type": "string"
     },
     "docId": {
-      "description": "Corresponds a specific HTML document or frame",
+      "description": "An automatically populated id corresponding to the document",
       "type": "string"
     },
     "uid": {
-      "description": "The object that is listening and responding to requests of this type",
+      "description": "An id corresponding to an in-page object that this message relates to",
       "type": "string"
     }
   }

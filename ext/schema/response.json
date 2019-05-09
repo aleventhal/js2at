@@ -1,22 +1,28 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "A content response sent as a reply to a corresponding request received from the AT.",
   "type": "object",
-  "required": ["responseForRequestId", "isComplete", "detail"],
+  "required": ["responseForRequestId", "appId", "docId", "isComplete", "detail"],
   "additionalProperties": false,
   "properties": {
     "responseForRequestId": {
+      "description": "An automatically populated id corresponding to the requestId for the request being responded to",
       "type": "string"
     },
     "appId": {
+      "description": "An automatically populated id corresponding to the host browser or other application serving the content",
       "type": "string"
     },
     "docId": {
+      "description": "An automatically populated id corresponding to the document",
       "type": "string"
     },
     "isComplete": {
+      "description": "Is this the final response for this request? Automatically set to true when author uses request.complete() or request.error(), or if request.multiSend was false.",
       "type": "boolean"
     },
     "detail": {
+      "description": "The response details provided by the content.  Must validate against the response subschema linked to by the pattern url.",
       "type": "object"
     }
   }
