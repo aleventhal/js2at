@@ -2,7 +2,7 @@ import Settings from './settings.js';
 
 class SchemaManager {
   constructor() {
-    this.ajv = new Ajv({ loadSchema: this.loadSchema});
+    this.ajv = new Ajv({ loadSchema: (schemaUrl) => this.loadSchema(schemaUrl) });
     this.preparedPatterns = new Set();
   }
 
@@ -25,23 +25,28 @@ class SchemaManager {
 
   // Return a promise for successful schema loading and compilation.
   loadSchema(pattern) {
+    const patternUrl = new URL(pattern);
+
     const cachedSchema = this.ajv.getSchema(pattern);
     if (cachedSchema)
       return Promise.resolve(cachedSchema);
 
-    if (Settings.getValidation() === 'none')
-      return Promise.resolve(true);  // No validation -- return empty schema, which was always validate.
-
     console.log('Load Js2at schema for: ', pattern);
-    const patternUrl = new URL(pattern);
+    function fetchIt() {
+      if (Settings.getValidation() === 'none') {
+        // No validation -- return empty schema, which was always validate.
+        return Promise.resolve(true);
+      }
+      return fetch(patternUrl)
+        .then((response) => {
+          if (response.status !== 200)
+            return Promise.reject('Status error ' + response.status + ' loading ' + patternUrl);
+          return response;
+        })
+        .then((response) => response.json());
+    }
 
-    return fetch(patternUrl)
-      .then((response) => {
-        if (response.status !== 200)
-          return Promise.reject('Status error ' + response.status + ' loading ' + patternUrl);
-        return response;
-      })
-      .then((response) => response.json())
+    return fetchIt()
       .then((schemaData) => {
         this.ajv.addSchema(schemaData, pattern);
         return schemaData;
@@ -52,6 +57,7 @@ class SchemaManager {
     return this.preparedPatterns.has(pattern);
   }
 
+  // Pre-compile the pattern, recursively loading and compiling sub-schemas.
   preparePattern(pattern) {
     if (this.hasPattern(pattern))
       return Promise.resolve();
@@ -74,8 +80,9 @@ class SchemaManager {
       return Promise.reject( 'Page attempted to observe an untrusted schema url' );
 
     return this.loadSchema(pattern)
-      .then(() => {
+      .then((schemaData) => {
         this.preparedPatterns.add(pattern);
+        return this.ajv.compileAsync(schemaData);
       });
   }
 

@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const settings = bgPage.getSettings();
-    selectOptionIfAvailable(apiFilterCombo.namedItem(settings.apiFilter));
-    selectOptionIfAvailable(validationCombo.namedItem(settings.validation));
+    selectOptionIfAvailable(apiFilterCombo.namedItem(settings.getApiFilter()));
+    selectOptionIfAvailable(validationCombo.namedItem(settings.getValidation()));
   });
 });
 

@@ -37,7 +37,6 @@ class PageMessaging {
       return;
     }
     else {
-      console.log('Page message:', message);
       this.sendPageResponseOrError(message);
     }
   }
