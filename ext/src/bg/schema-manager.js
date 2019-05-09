@@ -1,6 +1,6 @@
 import Settings from './settings.js';
 
-const kUseLocalSchemas = false;  // For debugging schemas on localhost.
+const kUseLocalSchemas = true;  // For debugging schemas on localhost.
 
 class SchemaManager {
   constructor() {
@@ -94,12 +94,12 @@ class SchemaManager {
   validate(schemaUrl, data) {
     return this.loadSchema(schemaUrl)
       .then(() => {
-        const valid = this.ajv.validate(schemaUrl, data);
-        if (!valid) {
+        const validationResult = this.ajv.validate(schemaUrl, data);
+        if (!validationResult) {
           if (Settings.getValidation() == 'reject')
-            return reject( { schemaErrors: validate.errors } );
+            return Promise.reject( { schemaErrors: this.ajv.errors } );
           else
-            console.error('Schema errors', validate.errors);
+            console.error('Schema errors', this.ajv.errors);
         }
       });
   }
