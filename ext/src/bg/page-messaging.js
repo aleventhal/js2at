@@ -48,7 +48,6 @@ class PageMessaging {
       SchemaManager.validate(chrome.runtime.getURL('schema/observer-change.json'), message)
       .then(SchemaManager.preparePattern(message.pattern))
       .then(() => {
-        console.log('Page connected a pattern + target uid', message);
         AtMessaging.sendMessage(message);
       })
       .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId ); });

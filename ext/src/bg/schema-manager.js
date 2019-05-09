@@ -1,5 +1,7 @@
 import Settings from './settings.js';
 
+const kUseLocalSchemas = false;  // For debugging schemas on localhost.
+
 class SchemaManager {
   constructor() {
     this.ajv = new Ajv({ loadSchema: (schemaUrl) => this.loadSchema(schemaUrl) });
@@ -25,6 +27,8 @@ class SchemaManager {
 
   // Return a promise for successful schema loading and compilation.
   loadSchema(pattern) {
+    if (kUseLocalSchemas)
+      pattern = pattern.replace('https://raw.githack.com/aleventhal/js2at/master/', 'http://localhost:8000/');
     const patternUrl = new URL(pattern);
 
     const cachedSchema = this.ajv.getSchema(pattern);
@@ -82,6 +86,7 @@ class SchemaManager {
     return this.loadSchema(pattern)
       .then((schemaData) => {
         this.preparedPatterns.add(pattern);
+        console.assert(pattern == schemaData['$id'], 'The $id property for a top-level pattern must be the same as the schema url:\n' + pattern + ' !=\n' + schemaData['$id']);
         return this.ajv.compileAsync(schemaData);
       });
   }
