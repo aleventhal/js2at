@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://js2at.org/schema/ref/node.json",
+  "title": "node",
+  "description": "An accessible node",
+  "type": "object",
+  "required": ["role", "name", "uid"],
+  "properties": {
+    "role": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "uid": {
+      "type": "string"
+    }
+  }
+}
