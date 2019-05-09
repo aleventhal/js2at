@@ -98,12 +98,14 @@ def Main():
   receive_browser_message_thread.start()
 
   logging.info('Begin listening for messages from at')
+  count = 0
   while 1:
     # If message available from AT, get it and send to the browser.
     at_message = None
     try:
       at_message = at_socket.recv_string(flags=zmq.NOBLOCK)
     except zmq.error.Again:
+      time.sleep(0.01)
       pass
 
     if at_message:
@@ -119,7 +121,9 @@ def Main():
         # Resource wasn't ready so failed to send -- place back in deque.
         # Place on the left side that the message order is still correct once resource is free.
         messages_from_browser.appendleft(browser_message)
-        pass
+        count = count + 1
+        logging.info('Temporarily enable to send on AT port, count = %d' % count)
+        time.sleep(1)
 
 if __name__ == '__main__':
   Main()

@@ -11,10 +11,18 @@ import datetime
 
 requestId = 0   # Incremented for each new message.
 messages_to_broker = collections.deque()   # Outgoing message queue.
-timers = {};
-ids = { 'appId': 'xxx', 'docId': 'xxx' };
+timers = {}
+ids = { 'appId': 'xxx', 'docId': 'xxx' }
 
-def exchange_broker_messages_thread_func(messages_to_broker, socket, timers, ids):
+def exchange_broker_messages_thread_func(messages_to_broker, timers, ids, port):
+  # Setup connection with native messaging host.
+  context = zmq.Context()
+  socket = context.socket(zmq.PAIR)
+  address = 'tcp://127.0.0.1:%s' % port
+  context.setsockopt(zmq.REQ_CORRELATE, 01)
+  context.setsockopt(zmq.REQ_RELAXED, 1)
+  socket.bind(address)
+  count = 0
   while 1:
     try:
       message_from_broker = socket.recv_string(flags=zmq.NOBLOCK)
@@ -38,8 +46,8 @@ def exchange_broker_messages_thread_func(messages_to_broker, socket, timers, ids
         print 'Incoming response (elapsed time=%sms):' % elapsed_str
       # Reserialize with indent so that the message is easier to read:
       print json.dumps(message, indent=2)
-
     except zmq.error.Again:
+      time.sleep(0.01)
       pass
 
     if messages_to_broker:
@@ -55,7 +63,13 @@ def exchange_broker_messages_thread_func(messages_to_broker, socket, timers, ids
         # Resource wasn't ready so failed to send -- place back in deque.
         # Place on the left side that the message order is still correct once resource is free.
         messages_to_broker.appendleft(broker_message_obj)
-        pass
+        count = count + 1
+        print 'Temporarily unable to send to broker port, count = %d' % count
+        print 'Quitting and restarting works. Resetting the port has not worked so far'
+        # time.sleep(1)
+        # socket.unbind()
+        # socket = context.socket(zmq.PAIR)
+        # socket.bind(address)
 
 
 def get_role_request(role):
@@ -86,13 +100,6 @@ def Main():
   if args.port:
     port = args.port
 
-  # Setup connection with native messaging host.
-  context = zmq.Context()
-  socket = context.socket(zmq.PAIR)
-  address = 'tcp://127.0.0.1:%s' % port
-  socket.bind(address)
-  print 'Connected to port %s' % port
-
   print("""\
   Instructions, type any of the following and press Enter.
   [arbitrary JSON]               Send as request
@@ -102,7 +109,7 @@ def Main():
   """)
 
   # Handle all port messaging on a single thread.
-  exchange_broker_messages_thread = threading.Thread(target=exchange_broker_messages_thread_func, args=(messages_to_broker, socket, timers, ids))
+  exchange_broker_messages_thread = threading.Thread(target=exchange_broker_messages_thread_func, args=(messages_to_broker, timers, ids, port))
   exchange_broker_messages_thread.daemon = True
   exchange_broker_messages_thread.start()
 
