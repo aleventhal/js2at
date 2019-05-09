@@ -2,20 +2,20 @@ import Settings from './settings.js';
 
 class SchemaManager {
   constructor() {
-    this.ajv = new Ajv();
-    this.cachedSchemas = {};
+    this.ajv = new Ajv({ loadSchema: this.loadSchema});
+    this.preparedPatterns = new Set();
   }
 
-  isAcceptableSchemaUrl(schemaUrl) {
+  isTrustedPatternUrl(patternUrl) {
     switch (Settings.getApiFilter()) {
       case 'community':
-        if (schemaUrl.hostname === 'raw.githack.com' &&
-          schemaUrl.pathname.startsWith('/aleventhal/js2at/master/schema/'))
+        if (patternUrl.hostname === 'raw.githack.com' &&
+          patternUrl.pathname.startsWith('/aleventhal/js2at/master/schema/'))
           return true;
       // Fall through.
       case 'strict':
-        if (schemaUrl.hostName === 'w3.org' &&
-          schemaUrl.pathName.startsWith('/js2at/'))
+        if (patternUrl.hostName === 'w3.org' &&
+          patternUrl.pathName.startsWith('/js2at/'))
           return true;
         break;
       default: // Experimental schemas allowed.
@@ -25,57 +25,70 @@ class SchemaManager {
 
   // Return a promise for successful schema loading and compilation.
   loadSchema(pattern) {
-    if (Settings.getValidation() === 'none')
-      return Promise.resolve();  // No validation -- don't even need to load it.
+    const cachedSchema = this.ajv.getSchema(pattern);
+    if (cachedSchema)
+      return Promise.resolve(cachedSchema);
 
-    let compiledSchema = this.cachedSchemas[pattern];
-    if (compiledSchema)
-      return Promise.resolve(compiledSchema);  // Already processed this schema.
+    if (Settings.getValidation() === 'none')
+      return Promise.resolve(true);  // No validation -- return empty schema, which was always validate.
 
     console.log('Load Js2at schema for: ', pattern);
-    const schemaUrl = new URL(pattern);
-    // May not be desirable to notify AT that the page attempted to use an
-    // illegal schema url, just log to console. TODO revisit this.
-    if (!this.isAcceptableSchemaUrl(schemaUrl))
-      return Promise.reject( 'The following untrusted Js2at schema url has been rejected: ' + schemaUrl );
+    const patternUrl = new URL(pattern);
 
-    return fetch(schemaUrl)
+    return fetch(patternUrl)
       .then((response) => {
         if (response.status !== 200)
-          return Promise.reject('Status error ' + response.status + ' loading ' + schemaUrl);
+          return Promise.reject('Status error ' + response.status + ' loading ' + patternUrl);
         return response;
       })
       .then((response) => response.json())
-      .then((schemaObj) => this.compileSchema(pattern, schemaObj));
+      .then((schemaData) => {
+        this.ajv.addSchema(schemaData, pattern);
+        return schemaData;
+      });
   }
 
-  hasSchema(pattern) {
-    return Boolean(this.cachedSchemas[pattern]);
+  hasPattern(pattern) {
+    return this.preparedPatterns.has(pattern);
   }
 
-  compileSchema(pattern, schemaObj) {
-    const compiledSchema = this.ajv.compile(schemaObj);
-    this.cachedSchemas[pattern] = compiledSchema;
-    return compiledSchema;
+  preparePattern(pattern) {
+    if (this.hasPattern(pattern))
+      return Promise.resolve();
+
+    // May not be desirable to notify AT that the page attempted to use an
+    // illegal schema url, just log to console. TODO revisit this.
+    const patternUrl = new URL(pattern);
+    if (patternUrl.protocol !== 'http:' && patternUrl.protocol !== 'https:')
+      return Promise.reject( 'Page attempted to observe a schema url that did not begin with http: or https:' );
+    if (patternUrl.hash)
+      return Promise.reject( 'Page attempted to observe a schema url that contained a # hash' );
+    if (patternUrl.search)
+      return Promise.reject( 'Page attempted to observe a schema url that contained a ? query string' );
+    if (!patternUrl.pathname.endsWith('.json'))
+      return Promise.reject( 'Page attempted to observe a schema url that did not end with .json' );
+    if (patternUrl.pathname.includes('/ref/'))
+      return Promise.reject( 'Page attempted to observe a schema url that should only be used as a referenced subschema via $ref' );
+
+    if (!this.isTrustedPatternUrl(patternUrl))
+      return Promise.reject( 'Page attempted to observe an untrusted schema url' );
+
+    return this.loadSchema(pattern)
+      .then(() => {
+        this.preparedPatterns.add(pattern);
+      });
   }
 
-  validateUsingCompiledSchema(compiledSchema, data) {
-    const valid = compiledSchema(data);
-    if (!valid) {
-      console.error('Schema errors', compiledSchema.errors);
-      if (Settings.getValidation() == 'reject')
-        return Promise.reject( { schemaErrors: compiledSchema.errors } );
-    }
-    return Promise.resolve();
-  }
-
-  validateUsingSchemaUrl(schemaUrl, data) {
-    if (Settings.getValidation() === 'none')
-      return Promise.resolve();  // No validation -- don't need to load schema.
-
+  validate(schemaUrl, data) {
     return this.loadSchema(schemaUrl)
-      .then((compiledSchema) => {
-        return this.validateUsingCompiledSchema(compiledSchema, data);
+      .then(() => {
+        const valid = this.ajv.validate(schemaUrl, data);
+        if (!valid) {
+          if (Settings.getValidation() == 'reject')
+            return reject( { schemaErrors: validate.errors } );
+          else
+            console.error('Schema errors', validate.errors);
+        }
       });
   }
 }

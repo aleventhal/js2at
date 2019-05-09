@@ -63,7 +63,7 @@ class AtMessaging {
   onRequest(request) {
     console.log('Message received from AT', request);
 
-    SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/request.json'), request)
+    SchemaManager.validate(chrome.runtime.getURL('schema/request.json'), request)
       .then(() => {
         if (RequestManager.getRequest(request.docId, request.requestId)) {
           return Promise.reject('The |requestId| ' + request.requestId + ' was used more than once');
@@ -73,14 +73,14 @@ class AtMessaging {
         if (!url.pathname.endsWith('.json'))
           return Promise.reject('Request |pattern| must be a URL that points to a JSON document, and has .json extension.');
 
-        if (!SchemaManager.hasSchema(request.pattern))
+        if (!SchemaManager.hasPattern(request.pattern))
           return Promise.reject('No observer for this |pattern|: ' + request.pattern);
 
         if (request.appId !== this.getAppId())
           return Promise.reject('The |appId| does not match the current app id');
       })
       .then(() => {
-        return SchemaManager.validateUsingSchemaUrl(request.pattern, { request: request.detail })
+        return SchemaManager.validate(request.pattern, { request: request.detail })
       })
       .then(() => {
         PageMessaging.sendContentRequest(request);

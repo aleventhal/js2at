@@ -46,8 +46,8 @@ class PageMessaging {
     const internalCommand = message['$command'];
     // A $command is something internal, sent by js2at infrastructure.
     if (internalCommand === 'observerAdded') {
-      SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/observer-change.json'), message)
-      .then(SchemaManager.loadSchema(message.pattern))
+      SchemaManager.validate(chrome.runtime.getURL('schema/observer-change.json'), message)
+      .then(SchemaManager.preparePattern(message.pattern))
       .then(() => {
         console.log('Page connected a pattern + target uid', message);
         AtMessaging.sendMessage(message);
@@ -55,14 +55,14 @@ class PageMessaging {
       .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId ); });
     }
     else if (internalCommand == 'observerRemoved') {
-      SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/observer-change.json'), message)
+      SchemaManager.validate(chrome.runtime.getURL('schema/observer-change.json'), message)
       .then(() => {
         // Cancel all open requests for this observer.
         const openRequestIds = RequestManager.getRequestIds(message.docId, message.pattern, message.uid);
         for (let openRequestId of openRequestIds)
           AtMessaging.sendGeneratedErrorResponse('Cancelled because observer removed', message.docId, openRequestId);
         // Sanity check, check if schema was loaded.
-        if (!SchemaManager.hasSchema(message.pattern)) {  // TODO track by object in a given page?
+        if (!SchemaManager.hasPattern(message.pattern)) {  // TODO track by object in a given page?
           console.error('Attempting to remove a schema that was never loaded: ' + message.pattern);
         }
         else {
@@ -81,7 +81,7 @@ class PageMessaging {
     if (!request)
       return Promise.reject('Could not find corresponding open request for this |responseForRequestId| and |docId|');
 
-    SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/response.json'), response)
+    SchemaManager.validate(chrome.runtime.getURL('schema/response.json'), response)
     .then(() => {
       if (response.detail.error) {
         // Error detail is not currently validated, just returned.
@@ -89,7 +89,7 @@ class PageMessaging {
         console.assert(response.isComplete === true);
         return response;
       }
-      return SchemaManager.validateUsingSchemaUrl(request.pattern, { response: response.detail });
+      return SchemaManager.validate(request.pattern, { response: response.detail });
     })
     .then(() => { AtMessaging.sendMessage(response); })
     .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, response.docId, response.responseForRequestId ); });
