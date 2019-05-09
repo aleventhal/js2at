@@ -12,7 +12,7 @@ import datetime
 requestId = 0   # Incremented for each new message.
 messages_to_broker = collections.deque()   # Outgoing message queue.
 timers = {};
-ids = {};
+ids = { 'appId': 'xxx', 'docId': 'xxx' };
 
 def exchange_broker_messages_thread_func(messages_to_broker, socket, timers, ids):
   while 1:
