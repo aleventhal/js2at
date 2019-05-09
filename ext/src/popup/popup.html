@@ -3,12 +3,12 @@
 <head>
   <title>Js2at Enhanced Accessibility Bridge</title>
   <style>
-    .item {
+    .select-item {
       white-space: nowrap;
       display: flex;
       justify-content: space-between;
     }
-    .item > :last-child {
+    .select-item > last-child {
       margin-left: 15px;
     }
     select { text-align-last: right; }
@@ -19,7 +19,7 @@
 </head>
 <body>
 <h1>Js2at Accessibility Bridge</h1>
-<div class="item">
+<div class="select-item">
   <label for="apiFilter">APIs allowed (TBD)</label>
   <select size="1" id="apiFilter">
     <option value="strict" name="strict">Only W3C</option>
@@ -28,7 +28,7 @@
   </select>
 </div>
 
-<div class="item">
+<div class="select-item">
   <label for="validation">Validation error handling (TBD)</label>
   <select size="1" id="validation">
       <option value="none" name="none">None</option>
@@ -37,5 +37,9 @@
   </select>
 </div>
 
+<div>
+  <input type="checkbox" id="useLocalSchemas">
+  <label for="useLocalSchemas">Debug schemas on localhost:8000</label>
+</div>
 </body>
 </html>

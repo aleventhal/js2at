@@ -1,7 +1,5 @@
 import Settings from './settings.js';
 
-const kUseLocalSchemas = false;  // For debugging schemas on localhost.
-
 class SchemaManager {
   constructor() {
     this.ajv = new Ajv({ loadSchema: (schemaUrl) => this.loadSchema(schemaUrl) });
@@ -27,7 +25,7 @@ class SchemaManager {
 
   // Return a promise for successful schema loading and compilation.
   loadSchema(pattern) {
-    if (kUseLocalSchemas)
+    if (Settings.getUseLocalSchemas())
       pattern = pattern.replace('https://raw.githack.com/aleventhal/js2at/master/', 'http://localhost:8000/');
     const patternUrl = new URL(pattern);
 

@@ -6,20 +6,31 @@ function selectOptionIfAvailable(htmlOption) {
 
 document.addEventListener('DOMContentLoaded', () => {
   chrome.runtime.getBackgroundPage((bgPage) => {
+    const settings = bgPage.getSettings();
+
+    // Api filter combobox.
     const apiFilterCombo = document.getElementById('apiFilter');
     apiFilterCombo.addEventListener('change', onApiFilterSettingChange);
-    function onApiFilterSettingChange(event) {
-      bgPage.setApiFilter(apiFilterCombo.value);
+    function onApiFilterSettingChange() {
+      settings.setApiFilter(apiFilterCombo.value);
     }
+    selectOptionIfAvailable(apiFilterCombo.namedItem(settings.getApiFilter()));
+
+    // Validation combobox.
     const validationCombo = document.getElementById('validation');
     validationCombo.addEventListener('change', onValidationSettingChange);
-    function onValidationSettingChange(event) {
-      bgPage.setValidation(validationCombo.value);
+    function onValidationSettingChange() {
+      settings.setValidation(validationCombo.value);
     }
-
-    const settings = bgPage.getSettings();
-    selectOptionIfAvailable(apiFilterCombo.namedItem(settings.getApiFilter()));
     selectOptionIfAvailable(validationCombo.namedItem(settings.getValidation()));
+
+    // Local schemas checkbox.
+    const useLocalSchemasCheckbox = document.getElementById('useLocalSchemas');
+    useLocalSchemasCheckbox.addEventListener('change', onUseLocalSchemasSettingChange);
+    function onUseLocalSchemasSettingChange() {
+      settings.setUseLocalSchemas(useLocalSchemasCheckbox.checked);
+    }
+    useLocalSchemasCheckbox.checked = settings.getUseLocalSchemas();
   });
 });
 

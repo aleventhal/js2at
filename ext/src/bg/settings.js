@@ -1,8 +1,9 @@
 class Settings {
   constructor() {
-    chrome.storage.sync.get(['apiFilter', 'validation'], (storedSettings) => {
+    chrome.storage.sync.get(['apiFilter', 'validation', 'useLocalSchemas'], (storedSettings) => {
       this.apiFilter = storedSettings.apiFilter;
       this.validation = storedSettings.validation;
+      this.useLocalSchemas = storedSettings.useLocalSchemas;
 
       // TODO Make code DRY. These allowed values are repeated in popup.html.
       console.assert(typeof this.apiFilter === 'undefined' ||
@@ -16,6 +17,10 @@ class Settings {
         this.validation === 'log' ||
         this.validation === 'reject');
       this.validation = this.validation || 'reject';
+
+      console.assert(typeof this.useLocalSchemas === 'undefined' ||
+        typeof this.useLocalSchemas === 'boolean');
+      this.useLocalSchemas = this.useLocalSchemas || false;
     });
   }
 
@@ -35,6 +40,15 @@ class Settings {
   setValidation(validation) {
     chrome.storage.sync.set({ validation });
     this.validation = validation;
+  }
+
+  getUseLocalSchemas() {
+    return this.useLocalSchemas;
+  }
+
+  setUseLocalSchemas(useLocalSchemas) {
+    chrome.storage.sync.set({ useLocalSchemas });
+    this.useLocalSchemas = useLocalSchemas;
   }
 }
 
