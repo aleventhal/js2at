@@ -58,9 +58,9 @@ class PageMessaging {
       SchemaManager.validateUsingSchemaUrl(chrome.runtime.getURL('schema/observer-change.json'), message)
       .then(() => {
         // Cancel all open requests for this observer.
-        const openRequestIds = RequestManager.getRequests(internalCommand.docId, internalCommand.pattern, internalCommand.uid);
-        for (openRequestId of openRequestIds)
-          AtMessaging.sendGeneratedErrorResponse('Cancelled because observer removed', internalCommand.docId, openRequestId);
+        const openRequestIds = RequestManager.getRequestIds(message.docId, message.pattern, message.uid);
+        for (let openRequestId of openRequestIds)
+          AtMessaging.sendGeneratedErrorResponse('Cancelled because observer removed', message.docId, openRequestId);
         // Sanity check, check if schema was loaded.
         if (!SchemaManager.hasSchema(message.pattern)) {  // TODO track by object in a given page?
           console.error('Attempting to remove a schema that was never loaded: ' + message.pattern);

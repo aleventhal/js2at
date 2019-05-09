@@ -19,8 +19,8 @@ class AtMessaging {
   sendMessage(message) {
     console.assert(this.nativePort);
     console.log('Sending to AT', message);
-    // if (message.isComplete)
-    //   RequestManager.closeRequest(message.docId, message.responseForRequestId);
+    if (message.isComplete)
+      RequestManager.closeRequest(message.docId, message.responseForRequestId);
     this.nativePort.postMessage(message);
   }
 

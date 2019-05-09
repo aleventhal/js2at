@@ -25,7 +25,7 @@ class RequestManager {
       this.byDocPatternUid[key].delete(requestId);
   }
 
-  getRequests(docId, pattern, uid) {
+  getRequestIds(docId, pattern, uid) {
     const key = docId + '\n' + pattern + '\n' + uid;
     return this.byDocPatternUid[key] || [];
   }
