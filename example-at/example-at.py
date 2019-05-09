@@ -26,13 +26,19 @@ def exchange_broker_messages_thread_func(messages_to_broker, socket, timers, ids
       except:
         elapsed_str = '?'
       try:
-        if (message['$command'] == 'observerAdded'):
+        if message['$command'] == 'observerAdded':
           ids['appId'] = message['appId']
           ids['docId'] = message['docId']
           print '*** appid=%s docId=%s' % (appId, docId)
       except:
         pass
-      print 'Incoming response (elapsed time=%sms): %s' % (elapsed_str, message_from_broker)
+      if elapsed_str == '?':
+        print 'Incoming $command:'
+      else:
+        print 'Incoming response (elapsed time=%sms):' % elapsed_str
+      # Reserialize with indent so that the message is easier to read:
+      print json.dumps(message, indent=2)
+
     except zmq.error.Again:
       pass
 
@@ -42,7 +48,8 @@ def exchange_broker_messages_thread_func(messages_to_broker, socket, timers, ids
       timers[broker_message_obj['requestId']] = datetime.datetime.now()
       try:
         socket.send_string(broker_message, flags=zmq.NOBLOCK)
-        print 'Sent to broker: %s' %  broker_message    # Should be off by default.
+        # Serialize again, but with spaces for formatting. So this isn't the exact string sent but is easier to read:
+        print 'Sent to broker: %s' % json.dumps(broker_message_obj, indent=2)
       except zmq.error.Again:
         # TODO limit number of tries.
         # Resource wasn't ready so failed to send -- place back in deque.
