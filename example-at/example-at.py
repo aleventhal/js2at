@@ -53,11 +53,11 @@ def exchange_broker_messages_thread_func(messages_to_broker, timers, ids, port):
     if messages_to_broker:
       broker_message_obj = messages_to_broker.popleft()
       broker_message = json.dumps(broker_message_obj)
+      print 'Send to broker: %s' % broker_message # json.dumps(broker_message_obj, indent=2)
       timers[broker_message_obj['requestId']] = datetime.datetime.now()
       try:
         socket.send_string(broker_message, flags=zmq.NOBLOCK)
         # Serialize again, but with spaces for formatting. So this isn't the exact string sent but is easier to read:
-        print 'Sent to broker: %s' % json.dumps(broker_message_obj, indent=2)
       except zmq.error.Again:
         # TODO limit number of tries.
         # Resource wasn't ready so failed to send -- place back in deque.
