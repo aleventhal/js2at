@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "List of accessible nodes and their properties",
+  "type": "array",
+  "items": {
+    "$ref": "https://raw.githack.com/aleventhal/js2at/master/schema/ref/node.json"
+  }
+}
