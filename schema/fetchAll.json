@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "minProperties": 1,
+  "maxProperties": 1,
   "properties": {
     "request": {
       "type": "object",
@@ -21,7 +22,7 @@
       "additionalProperties": false,
       "properties": {
         "objects": {
-          "$ref": "ref/node-list.json"
+          "$ref": "ref/nodeList.json"
         }
       }
     }

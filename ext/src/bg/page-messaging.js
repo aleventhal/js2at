@@ -29,6 +29,7 @@ class PageMessaging {
     message.docId = this.getDocId(port);
 
     if (message['$command']) {
+      // TODO this is a hacky setup, but will suffice for now.
       if (message['$command'] == 'initIds')
         callback(message.appId, message.docId);
       else {
@@ -45,7 +46,7 @@ class PageMessaging {
     const internalCommand = message['$command'];
     // A $command is something internal, sent by js2at infrastructure.
     if (internalCommand === 'observerAdded') {
-      SchemaManager.validate(chrome.runtime.getURL('schema/observer-change.json'), message)
+      SchemaManager.validate(chrome.runtime.getURL('schema/observerChange.json'), message)
       .then(SchemaManager.preparePattern(message.pattern))
       .then(() => {
         AtMessaging.sendMessage(message);
@@ -53,7 +54,7 @@ class PageMessaging {
       .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId ); });
     }
     else if (internalCommand == 'observerRemoved') {
-      SchemaManager.validate(chrome.runtime.getURL('schema/observer-change.json'), message)
+      SchemaManager.validate(chrome.runtime.getURL('schema/observerChange.json'), message)
       .then(() => {
         // Cancel all open requests for this observer.
         const openRequestIds = RequestManager.getRequestIds(message.docId, message.pattern, message.uid);
@@ -87,7 +88,10 @@ class PageMessaging {
         console.assert(response.isComplete === true);
         return response;
       }
-      return SchemaManager.validate(request.pattern, { response: response.detail });
+      const schemaUrl = request.pattern === '$getAllObservers' ?
+        chrome.runtime.getURL('schema/getAllObservers.json') :
+        request.pattern;
+      return SchemaManager.validate(schemaUrl, { response: response.detail });
     })
     .then(() => { AtMessaging.sendMessage(response); })
     .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, response.docId, response.responseForRequestId ); });

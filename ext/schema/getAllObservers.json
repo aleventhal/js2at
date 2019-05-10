@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githack.com/aleventhal/js2at/master/schema/getAllObservers.json",
+  "description": "Special pattern with built-in support used to discover all current observers in a document",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "maxProperties": 1,
+  "properties": {
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "No properties in the request details"
+    },
+    "response": {
+      "type": "object",
+      "required": [ "observers" ],
+      "additionalProperties": false,
+      "properties": {
+        "observers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [ "uid", "patterns" ],
+            "additionalProperties": false,
+            "properties": {
+              "uid": {
+                "type": "string"
+              },
+              "patterns": {
+                "type": "array",
+                "description": "Array of patterns (schemas urls)",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

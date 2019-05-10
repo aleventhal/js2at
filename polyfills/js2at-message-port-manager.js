@@ -13,7 +13,7 @@ class Js2atMessagePortManager {
     if (this.js2atMessagePorts)
       return;  // Already initialized.
     // This will be a map of maps.
-    // The first level map is by uid, the second level is by request type.
+    // The first level map is by uid, the second level is by request pattern.
     this.js2atMessagePorts = new Map();
     // Initialize communication with extension.
     const channel = new MessageChannel();
@@ -32,8 +32,23 @@ class Js2atMessagePortManager {
     });
   }
 
-  setPort(type, uid, port) {
-    console.assert(type);
+  getAllObservers() {
+    // Return an array of objects, each with a uid and array of patterns.
+    const allObserversByUid = {};
+    for (let [uid, mapByUid] of this.js2atMessagePorts.entries()) {
+      for (let pattern of mapByUid.keys()) {
+        allObserversByUid[uid] = allObserversByUid[uid] || [];
+        allObserversByUid[uid].push(pattern);
+      }
+    }
+    const result = [];
+    for (let [uid, patterns] of Object.entries(allObserversByUid))
+      result.push({ uid, patterns });
+    return result;
+  }
+
+  setPort(pattern, uid, port) {
+    console.assert(pattern);
     console.assert(uid);
     console.assert(port);
     this.initIfNecessary();
@@ -42,35 +57,35 @@ class Js2atMessagePortManager {
       mapByUid = new Map();
       this.js2atMessagePorts.set(uid, mapByUid);
     }
-    if (mapByUid.has(type))
+    if (mapByUid.has(pattern))
       throw new Error('Js2at observer already exists for this uid and pattern.');
-    mapByUid.set(type, port);
+    mapByUid.set(pattern, port);
   }
 
-  removePort(type, uid) {
-    console.assert(type);
+  removePort(pattern, uid) {
+    console.assert(pattern);
     console.assert(uid);
     let mapByUid = this.js2atMessagePorts.get(uid);
     if (!mapByUid) {
       console.error('No js2at ports to remove for this uid.');
       return;
     }
-    if (!mapByUid.has(type))
+    if (!mapByUid.has(pattern))
       console.error('No js2at ports to remove for this uid and pattern.');
-    mapByUid.delete(type);
+    mapByUid.delete(pattern);
   }
 
-  getPort(type, uid) {
-    console.assert(type);
+  getPort(pattern, uid) {
+    console.assert(pattern);
     console.assert(uid);
     let mapByUid = this.js2atMessagePorts.get(uid);
     if (!mapByUid) {
       console.error('No js2at ports for this uid.');
       return;
     }
-    const port = mapByUid.get(type);
+    const port = mapByUid.get(pattern);
     if (!port)
-      console.error('No js2at ports for this uid and type.');
+      console.error('No js2at ports for this uid and pattern.');
     return port;
   }
 
@@ -78,6 +93,20 @@ class Js2atMessagePortManager {
     const data = message.data;
     console.assert(data.pattern);
     console.assert(data.uid);
+    console.log(data.pattern);
+    if (data.pattern == '$getAllObservers') {
+      // Special case. AT wants to discover all current observers.
+      // For this observer, the uid is unused, and should be '*'.
+      console.assert(data.uid === '*');
+      this.sendMessageToExtension({
+        responseForRequestId: data.requestId,
+        isComplete: true,
+        detail: {
+          observers: this.getAllObservers()
+        }
+      });
+      return;
+    }
     const js2atMessagePort = this.getPort(data.pattern, data.uid);
     if (!js2atMessagePort) {
       if (data.requestId) {

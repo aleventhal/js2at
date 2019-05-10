@@ -65,10 +65,19 @@ class AtMessaging {
 
     SchemaManager.validate(chrome.runtime.getURL('schema/request.json'), request)
       .then(() => {
-        if (RequestManager.getRequest(request.docId, request.requestId)) {
+        if (RequestManager.getRequest(request.docId, request.requestId))
           return Promise.reject('The |requestId| ' + request.requestId + ' was used more than once');
-        }
+
+        if (request.appId !== this.getAppId())
+          return Promise.reject('The |appId| does not match the current app id');
+
         RequestManager.openRequest(request.docId, request.requestId, request);
+
+        // Map built-in pattern name to built-in schema url.
+        if (request.pattern == '$getAllObservers') {
+          return SchemaManager.validate(chrome.runtime.getURL('schema/getAllObservers.json'), { request: request.detail });
+        }
+
         const url = new URL(request.pattern);  // Ensure parsable as URL.
         if (!url.pathname.endsWith('.json'))
           return Promise.reject('Request |pattern| must be a URL that points to a JSON document, and has .json extension.');
@@ -76,10 +85,6 @@ class AtMessaging {
         if (!SchemaManager.hasPattern(request.pattern))
           return Promise.reject('No observer for this |pattern|: ' + request.pattern);
 
-        if (request.appId !== this.getAppId())
-          return Promise.reject('The |appId| does not match the current app id');
-      })
-      .then(() => {
         return SchemaManager.validate(request.pattern, { request: request.detail })
       })
       .then(() => {

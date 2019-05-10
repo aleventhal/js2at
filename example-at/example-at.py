@@ -91,6 +91,20 @@ def get_role_request(role):
   }
   return request
 
+def get_all_observers_request():
+  global requestId
+  requestId += 1
+  request = {
+    'requestId': str(requestId),
+    'pattern': '$getAllObservers',
+    'appId': ids['appId'],
+    'docId': ids['docId'],
+    'uid': '*',
+    'timeout': 300,
+    'detail': {}
+  }
+  return request
+
 def Main():
   # Get port number, use --port=[portnum] or will use default port.
   parser = argparse.ArgumentParser()
@@ -106,6 +120,7 @@ def Main():
   h                              Request all headings
   p                              Request all paragraphs
   z                              Request all zebras (will return error)
+  $                              Get all observers in the current document
   """)
 
   # Handle all port messaging on a single thread.
@@ -123,6 +138,8 @@ def Main():
       request = get_role_request('paragraph')
     elif inp[:1] == 'z':
       request = get_role_request('zebra')
+    elif inp[:1] == '$':
+      request = get_all_observers_request()
     elif inp[:1] == '{':
       try:
         request = json.loads(inp)
