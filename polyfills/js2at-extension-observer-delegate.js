@@ -10,8 +10,6 @@ import Js2atMessagePort from './js2at-message-port.js';
 // TODO support multiple observers each having the same type.
 
 export default class Js2atObserverDelegate {
-  // Promise failure handling
-
   // Connect to automation server so that we can listen to events
   constructor(pattern, onRequest, onCancel) {
     this.onMessage = (request) => {

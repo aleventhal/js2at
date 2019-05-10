@@ -16,8 +16,12 @@ class RequestManager {
 
   closeRequest(docId, requestId) {
     console.assert(this.openRequests[docId]);
+    if (!this.openRequests[docId])
+      return;
     const request = this.openRequests[docId][requestId];
     console.assert(request);
+    if (!request)
+      return;
 
     delete this.openRequests[docId][requestId];
     const key = docId + '\n' + request.pattern + '\n' + request.uid;

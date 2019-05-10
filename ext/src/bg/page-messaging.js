@@ -1,6 +1,7 @@
 import AtMessaging from './at-messaging.js';
 import SchemaManager from './schema-manager.js';
 import RequestManager from './request-manager.js';
+import Settings from './settings.js';
 
 class PageMessaging {
   constructor() {
@@ -25,7 +26,7 @@ class PageMessaging {
     if (!AtMessaging.ensureNativeConnection())
       return;
     // Add automatically populated fields.
-    message.appId = AtMessaging.getAppId();
+    message.appId = Settings.getAppId();
     message.docId = this.getDocId(port);
 
     if (message['$command']) {
@@ -75,26 +76,35 @@ class PageMessaging {
       throw new Error('Unsupported internal command: ' + internalCommand);
   }
 
-  sendPageResponseOrError(response) {
-    const request = RequestManager.getRequest(response.docId, response.responseForRequestId);
-    if (!request)
-      return Promise.reject('Could not find corresponding open request for this |responseForRequestId| and |docId|');
+  async sendPageResponseOrError(response) {
+    try {
+      const request = RequestManager.getRequest(response.docId, response.responseForRequestId);
+      if (!request)
+        throw new Error('Could not find corresponding open request for this |responseForRequestId| and |docId|');
 
-    SchemaManager.validate(chrome.runtime.getURL('schema/response.json'), response)
-    .then(() => {
+      // Generic response container validation.
+      // TODO should we have option for this?
+      // It's a possible optimization since infrastructure builds this structure and it should be valid.
+      await SchemaManager.validate(chrome.runtime.getURL('schema/response.json'), response);
+
+      // Validate |detail| object according to pattern, unless response is an error,
       if (response.detail.error) {
         // Error detail is not currently validated, just returned.
         // TODO Build internal schema for detail: { error } case.
         console.assert(response.isComplete === true);
-        return response;
       }
-      const schemaUrl = request.pattern === '$ping' ?
-        chrome.runtime.getURL('schema/ping.json') :
-        request.pattern;
-      return SchemaManager.validate(schemaUrl, { response: response.detail });
-    })
-    .then(() => { AtMessaging.sendMessage(response); })
-    .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, response.docId, response.responseForRequestId ); });
+      else {
+        const schemaUrl = request.pattern === '$ping' ?
+          chrome.runtime.getURL('schema/ping.json') :
+          request.pattern;
+        await SchemaManager.validate(schemaUrl, { response: response.detail });
+      }
+
+      AtMessaging.sendMessage(response);
+    }
+    catch(err) {
+      AtMessaging.sendGeneratedErrorResponse(err, response.docId, response.responseForRequestId );
+    }
   }
 
   onPagePortConnect(port) {
@@ -119,7 +129,7 @@ class PageMessaging {
       // After port connects, send it an initial hellp message with ids.
       port.postMessage({
         '$command': 'initIds',
-        appId: AtMessaging.getAppId(),
+        appId: Settings.getAppId(),
         docId
       });
     }, 0);

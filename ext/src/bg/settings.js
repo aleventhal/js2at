@@ -22,6 +22,22 @@ class Settings {
         typeof this.useLocalSchemas === 'boolean');
       this.useLocalSchemas = this.useLocalSchemas || false;
     });
+
+    // Use consistent appId for this browser on this computer, even if extension
+    // refreshes. Not required, but makes manual testing with copy/paste easier.
+    chrome.storage.local.get(['appId'], ({appId}) => {
+      if (appId) {
+        this.appId = appId;
+      }
+      else {
+        this.appId = Math.random().toString(26).substr(2);
+        chrome.storage.local.set({ appId: this.appId });
+      }
+    });
+  }
+
+  getAppId() {
+    return this.appId;
   }
 
   getApiFilter() {

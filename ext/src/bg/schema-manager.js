@@ -23,36 +23,30 @@ class SchemaManager {
     }
   }
 
-  // Return a promise for successful schema loading and compilation.
-  loadSchema(pattern) {
+  async loadSchema(pattern) {
     if (Settings.getUseLocalSchemas())
       pattern = pattern.replace('https://raw.githack.com/aleventhal/js2at/master/', 'http://localhost:8000/');
     const patternUrl = new URL(pattern);
 
     const cachedSchema = this.ajv.getSchema(pattern);
     if (cachedSchema)
-      return Promise.resolve(cachedSchema);
+      return cachedSchema;
 
     console.log('Load Js2at schema for: ', pattern);
-    function fetchIt() {
+    async function fetchIt() {
       if (Settings.getValidation() === 'none') {
         // No validation -- return empty schema, which was always validate.
-        return Promise.resolve(true);
+        return true;
       }
-      return fetch(patternUrl)
-        .then((response) => {
-          if (response.status !== 200)
-            return Promise.reject('Status error ' + response.status + ' loading ' + patternUrl);
-          return response;
-        })
-        .then((response) => response.json());
+      const response = await fetch(patternUrl);
+      if (response.status !== 200)
+        throw new Error('Status error ' + response.status + ' loading ' + patternUrl);
+      return response.json();
     }
 
-    return fetchIt()
-      .then((schemaData) => {
-        this.ajv.addSchema(schemaData, pattern);
-        return schemaData;
-      });
+    const schemaData = await fetchIt();
+    this.ajv.addSchema(schemaData, pattern);
+    return schemaData;
   }
 
   hasPattern(pattern) {
@@ -60,46 +54,46 @@ class SchemaManager {
   }
 
   // Pre-compile the pattern, recursively loading and compiling sub-schemas.
-  preparePattern(pattern) {
+  async preparePattern(pattern) {
     if (this.hasPattern(pattern))
-      return Promise.resolve();
+      return;
 
     // May not be desirable to notify AT that the page attempted to use an
     // illegal schema url, just log to console. TODO revisit this.
     const patternUrl = new URL(pattern);
     if (patternUrl.protocol !== 'http:' && patternUrl.protocol !== 'https:')
-      return Promise.reject( 'Page attempted to observe a schema url that did not begin with http: or https:' );
+      throw new Error('Page attempted to observe a schema url that did not begin with http: or https:');
     if (patternUrl.hash)
-      return Promise.reject( 'Page attempted to observe a schema url that contained a # hash' );
+      throw new Error('Page attempted to observe a schema url that contained a # hash');
     if (patternUrl.search)
-      return Promise.reject( 'Page attempted to observe a schema url that contained a ? query string' );
+      throw new Error('Page attempted to observe a schema url that contained a ? query string');
     if (!patternUrl.pathname.endsWith('.json'))
-      return Promise.reject( 'Page attempted to observe a schema url that did not end with .json' );
+      throw new Error('Page attempted to observe a schema url that did not end with .json');
     if (patternUrl.pathname.includes('/ref/'))
-      return Promise.reject( 'Page attempted to observe a schema url that should only be used as a referenced subschema via $ref' );
+      throw new Error('Page attempted to observe a schema url that should only be used as a referenced subschema via $ref');
 
     if (!this.isTrustedPatternUrl(patternUrl))
-      return Promise.reject( 'Page attempted to observe an untrusted schema url' );
+      throw new Error('Page attempted to observe an untrusted schema url');
 
-    return this.loadSchema(pattern)
-      .then((schemaData) => {
-        this.preparedPatterns.add(pattern);
-        console.assert(pattern == schemaData['$id'], 'The $id property for a top-level pattern must be the same as the schema url:\n' + pattern + ' !=\n' + schemaData['$id']);
-        return this.ajv.compileAsync(schemaData);
-      });
+    let schemaData = await this.loadSchema(pattern);
+
+    this.preparedPatterns.add(pattern);
+    console.assert(pattern == schemaData['$id'],
+      'The $id property for a top-level pattern must be the same as the schema url:\n' +
+      pattern + ' !=\n' + schemaData['$id']);
+    return this.ajv.compileAsync(schemaData);
   }
 
-  validate(schemaUrl, data) {
-    return this.loadSchema(schemaUrl)
-      .then(() => {
-        const validationResult = this.ajv.validate(schemaUrl, data);
-        if (!validationResult) {
-          if (Settings.getValidation() == 'reject')
-            return Promise.reject( { schemaErrors: this.ajv.errors } );
-          else
-            console.error('Schema errors', this.ajv.errors);
-        }
-      });
+  async validate(schemaUrl, data) {
+    await this.loadSchema(schemaUrl);
+
+    const validationResult = this.ajv.validate(schemaUrl, data);
+    if (!validationResult) {
+      if (Settings.getValidation() == 'reject')
+        throw new Error({ schemaErrors: this.ajv.errors });
+      else
+        console.error('Schema errors', this.ajv.errors);
+    }
   }
 }
 
