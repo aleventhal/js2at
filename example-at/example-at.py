@@ -91,12 +91,12 @@ def get_role_request(role):
   }
   return request
 
-def get_all_observers_request():
+def get_ping_request():
   global requestId
   requestId += 1
   request = {
     'requestId': str(requestId),
-    'pattern': '$getAllObservers',
+    'pattern': '$ping',
     'appId': ids['appId'],
     'docId': ids['docId'],
     'uid': '*',
@@ -120,7 +120,7 @@ def Main():
   h                              Request all headings
   p                              Request all paragraphs
   z                              Request all zebras (will return error)
-  $                              Get all observers in the current document
+  $                              Ping / get all observers in the current document
   """)
 
   # Handle all port messaging on a single thread.
@@ -139,7 +139,7 @@ def Main():
     elif inp[:1] == 'z':
       request = get_role_request('zebra')
     elif inp[:1] == '$':
-      request = get_all_observers_request()
+      request = get_ping_request()
     elif inp[:1] == '{':
       try:
         request = json.loads(inp)

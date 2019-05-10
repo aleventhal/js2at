@@ -88,8 +88,8 @@ class PageMessaging {
         console.assert(response.isComplete === true);
         return response;
       }
-      const schemaUrl = request.pattern === '$getAllObservers' ?
-        chrome.runtime.getURL('schema/getAllObservers.json') :
+      const schemaUrl = request.pattern === '$ping' ?
+        chrome.runtime.getURL('schema/ping.json') :
         request.pattern;
       return SchemaManager.validate(schemaUrl, { response: response.detail });
     })

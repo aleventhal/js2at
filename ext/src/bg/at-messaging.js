@@ -74,8 +74,8 @@ class AtMessaging {
         RequestManager.openRequest(request.docId, request.requestId, request);
 
         // Map built-in pattern name to built-in schema url.
-        if (request.pattern == '$getAllObservers') {
-          return SchemaManager.validate(chrome.runtime.getURL('schema/getAllObservers.json'), { request: request.detail });
+        if (request.pattern == '$ping') {
+          return SchemaManager.validate(chrome.runtime.getURL('schema/ping.json'), { request: request.detail });
         }
 
         const url = new URL(request.pattern);  // Ensure parsable as URL.

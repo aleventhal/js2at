@@ -94,7 +94,7 @@ class Js2atMessagePortManager {
     console.assert(data.pattern);
     console.assert(data.uid);
     console.log(data.pattern);
-    if (data.pattern == '$getAllObservers') {
+    if (data.pattern == '$ping') {
       // Special case. AT wants to discover all current observers.
       // For this observer, the uid is unused, and should be '*'.
       console.assert(data.uid === '*');
