@@ -9,18 +9,21 @@
 
 addEventListener('message', receivePort);
 
+if (typeof browser === "undefined" || Object.getPrototypeOf(browser) !== Object.prototype)
+  browser = chrome;  // Don't need full webextension-polyfill for this simple page.
+
 function receivePort(event) {
   if (event.data !== 'js2atChannelInit')
     return;
   console.assert(!receivePort.pageScriptPort);  // Make sure we don't try to set the port twice.
 
-  const kSelfExtensionId = chrome.runtime.id;
-  const backgroundScriptPort = chrome.runtime.connect(kSelfExtensionId, {
+  const kSelfExtensionId = browser.runtime.id;
+  const backgroundScriptPort = browser.runtime.connect(kSelfExtensionId, {
     name: 'js2at',  // Could pass info through this way.
     // includeTlsChannelId: false  // TODO better understand this
   });
-  if (chrome.runtime.lastError) {
-    console.error(chrome.runtime.lastError);
+  if (browser.runtime.lastError) {
+    console.error(browser.runtime.lastError);
   }
   if (backgroundScriptPort) {
     removeEventListener('message', receivePort);
@@ -44,9 +47,3 @@ function receivePort(event) {
     });
   }
 }
-
-
-
-
-
-

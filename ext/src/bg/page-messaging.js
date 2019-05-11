@@ -6,7 +6,10 @@ import Settings from './settings.js';
 class PageMessaging {
   constructor() {
     this.pagePorts = {};  // Indexed by docId.
-    chrome.runtime.onConnect.addListener((port) => this.onPagePortConnect(port));
+  }
+
+  begin() {
+    browser.runtime.onConnect.addListener((port) => this.onPagePortConnect(port));
   }
 
   sendContentRequest(request) {
@@ -43,20 +46,17 @@ class PageMessaging {
     }
   }
 
-  processInternalPageCommand(message) {
+  async processInternalPageCommand(message) {
     const internalCommand = message['$command'];
     // A $command is something internal, sent by js2at infrastructure.
-    if (internalCommand === 'observerAdded') {
-      SchemaManager.validate(chrome.runtime.getURL('schema/observerChange.json'), message)
-      .then(SchemaManager.preparePattern(message.pattern))
-      .then(() => {
+    try {
+      if (internalCommand === 'observerAdded') {
+        await SchemaManager.validate(browser.runtime.getURL('schema/observerChange.json'), message)
+        await SchemaManager.preparePattern(message.pattern);
         AtMessaging.sendMessage(message);
-      })
-      .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId ); });
-    }
-    else if (internalCommand == 'observerRemoved') {
-      SchemaManager.validate(chrome.runtime.getURL('schema/observerChange.json'), message)
-      .then(() => {
+      }
+      else if (internalCommand == 'observerRemoved') {
+        await SchemaManager.validate(browser.runtime.getURL('schema/observerChange.json'), message)
         // Cancel all open requests for this observer.
         const openRequestIds = RequestManager.getRequestIds(message.docId, message.pattern, message.uid);
         for (let openRequestId of openRequestIds)
@@ -69,11 +69,13 @@ class PageMessaging {
           console.log('Page removed a pattern + target uid', message);
           AtMessaging.sendMessage(message);
         }
-      })
-      .catch((err) => { AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId ); });
+      }
+      else
+        throw new Error('Unsupported internal command: ' + internalCommand);
     }
-    else
-      throw new Error('Unsupported internal command: ' + internalCommand);
+    catch(err) {
+      AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId );
+    }
   }
 
   async sendPageResponseOrError(response) {
@@ -85,7 +87,7 @@ class PageMessaging {
       // Generic response container validation.
       // TODO should we have option for this?
       // It's a possible optimization since infrastructure builds this structure and it should be valid.
-      await SchemaManager.validate(chrome.runtime.getURL('schema/response.json'), response);
+      await SchemaManager.validate(browser.runtime.getURL('schema/response.json'), response);
 
       // Validate |detail| object according to pattern, unless response is an error,
       if (response.detail.error) {
@@ -95,7 +97,7 @@ class PageMessaging {
       }
       else {
         const schemaUrl = request.pattern === '$ping' ?
-          chrome.runtime.getURL('schema/ping.json') :
+          browser.runtime.getURL('schema/ping.json') :
           request.pattern;
         await SchemaManager.validate(schemaUrl, { response: response.detail });
       }
@@ -119,19 +121,15 @@ class PageMessaging {
     port.onMessage.addListener((message, port, callback) =>
       this.onPageMessage(message, port, callback));
     port.onDisconnect.addListener((port) => {
-      // TODO: cancel all pending requests (send error responses).
-      // TODO: send observerRemoved (do this in the polyfill?)
       delete this.pagePorts[docId];
     });
 
-    setTimeout(() => {
-      // After port connects, send it an initial hellp message with ids.
-      port.postMessage({
-        '$command': 'initIds',
-        appId: Settings.getAppId(),
-        docId
-      });
-    }, 0);
+    // After port connects, send it an initial help message with ids.
+    port.postMessage({
+      '$command': 'initIds',
+      appId: Settings.getAppId(),
+      docId
+    });
   }
 }
 

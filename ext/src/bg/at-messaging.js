@@ -25,20 +25,19 @@ class AtMessaging {
   }
 
   onDisconnected() {
-    if (chrome.runtime.lastError)
-      console.log(chrome.runtime.lastError.message);
+    if (browser.runtime.lastError)
+      console.log(browser.runtime.lastError.message);
     this.port = null;
   }
 
   ensureNativeConnection() {
     // If no listeners, that means the native port was disconnected externally.
     const kNativeHostName = "org.js2at.message_broker";
-    return chrome.runtime.connectNative(kNativeHostName);
+    return browser.runtime.connectNative(kNativeHostName);
   }
 
   ensureExtensionConnection(extensionId, name) {
-
-    return chrome.runtime.connect(extensionId, { name });
+    return browser.runtime.connect(extensionId, { name });
   }
 
   ensureAtConnection() {
@@ -48,8 +47,8 @@ class AtMessaging {
       this.ensureExtensionConnection(kChromeVoxExtensionId, 'js2at->cvox') :
       this.ensureNativeConnection();
 
-    if (chrome.runtime.lastError) {
-      console.error(chrome.runtime.lastError);
+    if (browser.runtime.lastError) {
+      console.error(browser.runtime.lastError);
       return;
     }
     if (this.port) {
@@ -75,7 +74,7 @@ class AtMessaging {
     console.log('Message received from AT', request);
 
     try {
-      await SchemaManager.validate(chrome.runtime.getURL('schema/request.json'), request);
+      await SchemaManager.validate(browser.runtime.getURL('schema/request.json'), request);
 
       if (RequestManager.getRequest(request.docId, request.requestId))
         throw new Error('The |requestId| ' + request.requestId + ' was used more than once');
@@ -87,7 +86,8 @@ class AtMessaging {
 
       // Map built-in pattern name to built-in schema url.
       if (request.pattern == '$ping') {
-        return SchemaManager.validate(chrome.runtime.getURL('schema/ping.json'), { request: request.detail });
+        return SchemaManager.validate(browser.runtime.getURL('schema/ping.json'),
+          { request: request.detail });
       }
 
       const url = new URL(request.pattern);  // Ensure parsable as URL.
