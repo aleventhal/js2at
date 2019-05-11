@@ -14,8 +14,8 @@ function receivePort(event) {
     return;
   console.assert(!receivePort.pageScriptPort);  // Make sure we don't try to set the port twice.
 
-  const kExtensionId = 'jpgoldinadnmhfknenolkgbnockemnid';
-  const backgroundScriptPort = chrome.runtime.connect(kExtensionId, {
+  const kSelfExtensionId = chrome.runtime.id;
+  const backgroundScriptPort = chrome.runtime.connect(kSelfExtensionId, {
     name: 'js2at',  // Could pass info through this way.
     // includeTlsChannelId: false  // TODO better understand this
   });

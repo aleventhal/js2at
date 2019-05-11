@@ -108,7 +108,6 @@ class PageMessaging {
   }
 
   onPagePortConnect(port) {
-    // TODO Manage tabs. Add disconnect handler.
     if (port.name !== 'js2at')
       return;  // Not handled.
 
