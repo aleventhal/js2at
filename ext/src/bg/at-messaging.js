@@ -36,16 +36,16 @@ class AtMessaging {
     return chrome.runtime.connectNative(kNativeHostName);
   }
 
-  ensureExtensionConnection(extensionId) {
+  ensureExtensionConnection(extensionId, name) {
 
-    return chrome.runtime.connect(extensionId, { name: 'js2at' });
+    return chrome.runtime.connect(extensionId, { name });
   }
 
   ensureAtConnection() {
     if (this.port && this.port.onMessage.hasListeners())
       return true;
     this.port = isChromeVox() ?
-      this.ensureExtensionConnection(kChromeVoxExtensionId) :
+      this.ensureExtensionConnection(kChromeVoxExtensionId, 'js2at->cvox') :
       this.ensureNativeConnection();
 
     if (chrome.runtime.lastError) {
