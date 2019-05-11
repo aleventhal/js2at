@@ -23,7 +23,7 @@ class PageMessaging {
   }
 
   onPageMessage(message, port, callback) {
-    if (!AtMessaging.ensureNativeConnection())
+    if (!AtMessaging.ensureAtConnection())
       return;
     // Add automatically populated fields.
     message.appId = Settings.getAppId();

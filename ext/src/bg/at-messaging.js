@@ -6,40 +6,56 @@ import RequestManager from './request-manager.js';
 import PageMessaging from './page-messaging.js';
 import Settings from './settings.js';
 
+function isChromeVox() {
+  return /\bCrOS\b/.test(navigator.userAgent);
+}
+
+const kChromeVoxExtensionId = 'mndnfokpggljbaajbnioimlmbfngpief';
+
 class AtMessaging {
   constructor() {
-    this.kNativeHostName = "org.js2at.message_broker";
   }
 
   sendMessage(message) {
-    console.assert(this.nativePort);
+    console.assert(this.port);
     console.log('Sending to AT', message);
     if (message.isComplete)
       RequestManager.closeRequest(message.docId, message.responseForRequestId);
-    this.nativePort.postMessage(message);
+    this.port.postMessage(message);
   }
 
-  onNativeMessagingDisconnected() {
+  onDisconnected() {
     if (chrome.runtime.lastError)
       console.log(chrome.runtime.lastError.message);
-    this.nativePort = null;
+    this.port = null;
   }
 
   ensureNativeConnection() {
     // If no listeners, that means the native port was disconnected externally.
-    if (this.nativePort && this.nativePort.onMessage.hasListeners()) {
+    const kNativeHostName = "org.js2at.message_broker";
+    return chrome.runtime.connectNative(kNativeHostName);
+  }
+
+  ensureExtensionConnection(extensionId) {
+
+    return chrome.runtime.connect(extensionId, { name: 'js2at' });
+  }
+
+  ensureAtConnection() {
+    if (this.port && this.port.onMessage.hasListeners())
       return true;
-    }
-    var hostName = this.kNativeHostName;
-    this.nativePort = chrome.runtime.connectNative(hostName);
+    this.port = isChromeVox() ?
+      this.ensureExtensionConnection(kChromeVoxExtensionId) :
+      this.ensureNativeConnection();
+
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError);
       return;
     }
-    if (this.nativePort) {
-      console.log('Native port connected', this.nativePort);
-      this.nativePort.onMessage.addListener((request) => this.onRequest(request));
-      this.nativePort.onDisconnect.addListener(() => this.onNativeMessagingDisconnected());
+    if (this.port) {
+      console.log('Native port connected', this.port);
+      this.port.onMessage.addListener((request) => this.onRequest(request));
+      this.port.onDisconnect.addListener(() => this.onDisconnected());
       return true;
     }
   }
