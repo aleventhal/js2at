@@ -9,3 +9,5 @@ REG DELETE "HKCU\Software\Google\Chrome SxS\NativeMessagingHosts\org.js2at.messa
 REG DELETE "HKLM\Software\Google\Chrome SxS\NativeMessagingHosts\org.js2at.message_host" /f
 REG DELETE "HKCU\Software\Chromium\NativeMessagingHosts\org.js2at.message_host" /f
 REG DELETE "HKLM\Software\Chromium\NativeMessagingHosts\org.js2at.message_host" /f
+REG DELETE "HKCU\Software\Mozilla\NativeMessagingHosts\org.js2at.message_broker" /f
+REG DELETE "HKLM\Software\Mozilla\NativeMessagingHosts\org.js2at.message_broker" /f
