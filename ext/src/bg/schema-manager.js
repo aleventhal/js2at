@@ -40,7 +40,7 @@ class SchemaManager {
       }
       const response = await fetch(patternUrl);
       if (response.status !== 200)
-        throw new Error('Status error ' + response.status + ' loading ' + patternUrl);
+        return Promise.reject('Status error ' + response.status + ' loading ' + patternUrl);
       return response.json();
     }
 
@@ -62,18 +62,18 @@ class SchemaManager {
     // illegal schema url, just log to console. TODO revisit this.
     const patternUrl = new URL(pattern);
     if (patternUrl.protocol !== 'http:' && patternUrl.protocol !== 'https:')
-      throw new Error('Page attempted to observe a schema url that did not begin with http: or https:');
+      return Promise.reject('Page attempted to observe a schema url that did not begin with http: or https:');
     if (patternUrl.hash)
-      throw new Error('Page attempted to observe a schema url that contained a # hash');
+      return Promise.reject('Page attempted to observe a schema url that contained a # hash');
     if (patternUrl.search)
-      throw new Error('Page attempted to observe a schema url that contained a ? query string');
+      return Promise.reject('Page attempted to observe a schema url that contained a ? query string');
     if (!patternUrl.pathname.endsWith('.json'))
-      throw new Error('Page attempted to observe a schema url that did not end with .json');
+      return Promise.reject('Page attempted to observe a schema url that did not end with .json');
     if (patternUrl.pathname.includes('/ref/'))
-      throw new Error('Page attempted to observe a schema url that should only be used as a referenced subschema via $ref');
+      return Promise.reject('Page attempted to observe a schema url that should only be used as a referenced subschema via $ref');
 
     if (!this.isTrustedPatternUrl(patternUrl))
-      throw new Error('Page attempted to observe an untrusted schema url');
+      return Promise.reject('Page attempted to observe an untrusted schema url');
 
     let schemaData = await this.loadSchema(pattern);
 
@@ -90,7 +90,7 @@ class SchemaManager {
     const validationResult = this.ajv.validate(schemaUrl, data);
     if (!validationResult) {
       if (Settings.getValidation() == 'reject')
-        throw new Error({ schemaErrors: this.ajv.errors });
+        return Promise.reject(this.ajv.errors);
       else
         console.error('Schema errors', this.ajv.errors);
     }

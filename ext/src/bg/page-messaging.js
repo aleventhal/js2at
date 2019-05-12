@@ -71,7 +71,7 @@ class PageMessaging {
         }
       }
       else
-        throw new Error('Unsupported internal command: ' + internalCommand);
+        return Promise.reject('Unsupported internal command: ' + internalCommand);
     }
     catch(err) {
       AtMessaging.sendGeneratedErrorResponse(err, message.docId, message.responseForRequestId );
@@ -82,7 +82,7 @@ class PageMessaging {
     try {
       const request = RequestManager.getRequest(response.docId, response.responseForRequestId);
       if (!request)
-        throw new Error('Could not find corresponding open request for this |responseForRequestId| and |docId|');
+        return Promise.reject('Could not find corresponding open request for this |responseForRequestId| and |docId|');
 
       // Generic response container validation.
       // TODO should we have option for this?

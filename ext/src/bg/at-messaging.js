@@ -61,15 +61,14 @@ class AtMessaging {
 
   sendGeneratedErrorResponse(error, docId, requestId) {
     // Use toString() on Error type, rather than JSON.stringify, which returns {}
-    const errorString = error instanceof Error || typeof error !== 'object' ?
-      error.toString():
-      JSON.stringify(error);
+    if (error instanceof Error)
+      error = error.toString();
     this.sendMessage({
       responseForRequestId: requestId,
       appId: Settings.getAppId(),
       docId,
       isComplete: true,
-      detail: { error: errorString }
+      detail: { error }
     });
   }
 
@@ -81,10 +80,10 @@ class AtMessaging {
       await SchemaManager.validate(browser.runtime.getURL('schema/request.json'), request);
 
       if (RequestManager.getRequest(request.docId, request.requestId))
-        throw new Error('The |requestId| ' + request.requestId + ' was used more than once');
+        return Promise.reject('The |requestId| ' + request.requestId + ' was used more than once');
 
       if (request.appId !== Settings.getAppId())
-        throw new Error('The |appId| does not match the current app id');
+        return Promise.reject('The |appId| does not match the current app id');
 
       RequestManager.openRequest(request.docId, request.requestId, request);
 
@@ -96,10 +95,10 @@ class AtMessaging {
 
       const url = new URL(request.pattern);  // Ensure parsable as URL.
       if (!url.pathname.endsWith('.json'))
-        throw new Error('Request |pattern| must be a URL that points to a JSON document, and has .json extension.');
+        return Promise.reject('Request |pattern| must be a URL that points to a JSON document, and has .json extension.');
 
       if (!SchemaManager.hasPattern(request.pattern))
-        throw new Error('No observer for this |pattern|: ' + request.pattern);
+        return Promise.reject('No observer for this |pattern|: ' + request.pattern);
 
       await SchemaManager.validate(request.pattern, { request: request.detail });
       PageMessaging.sendContentRequest(request);

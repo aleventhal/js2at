@@ -4,6 +4,7 @@
   "manifest_version": 2,
   // TODO The key field is not recognized by Firefox and causes a warning there.
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnHQErLEZOjN5BspVcWMuNViRgto66D9NOXozjKkyluNxT6sq0cRI932V+b5R8wDp2zXL/YkNE32YCtTFym5kHeqO+foYyk/zk1kSg2XYBqqEzwWrSxrmb48HZvdOoFreGZqgEozeNkpnpPvoopeUM5wCFk4BHYrQ41WAtlYqTBS3IHpqAapYq0LTb/xsQWVLa043Pf808EV3nd36rcnxF6wWnfTtIcueJkNlMO818E0BbXDcZL6f5xSrLIP7O0n3J3Y1cVVnU6NIuOxbdSfjjC6FmmFcTqCGtn1p0U8wmEfltfLWcyLOQmbL35DnsDy45WobebRUO9aGDo1Uj62TEQIDAQAB",
+  // TODO the  browser_specific_settings field is not recongized by Chrome and causes a console error there, although the extension still works.
   "browser_specific_settings": {
     "gecko": {
       "id": "{110cb013-2a29-499b-b7b8-2498a46f351e}"
