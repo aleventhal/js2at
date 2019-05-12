@@ -17,7 +17,7 @@ The message broker passes messages back and forth between an AT and the browser.
 On Windows, run message-broker/install-broker-win.bat
 Otherwise, run message-broker/install-broker.sh
 
-The message broker installer does not yet support Firefox or Edge.
+The message broker installer works in Firefox, but does not yet support Edge.
 
 It is not necessary or useful on Chrome OS, which will need a different
 mechanism for communicating with ATs, since they are non-native and
@@ -28,7 +28,7 @@ essentially browser extensions.
 The extension is under ext, and can be loaded as an unpacked extension under
 chrome://extensions.
 
-It is not yet compatible with Firefox, and Edge needs to be tested.
+The extension is compatible with Firefox, but Microsoft Edge needs to be tested.
 
 ## Running the examples
 
