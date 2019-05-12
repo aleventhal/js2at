@@ -6,4 +6,4 @@ REG ADD "HKLM\Software\Google\Chrome Beta\NativeMessagingHosts\org.js2at.message
 REG ADD "HKLM\Software\Google\Chrome Dev\NativeMessagingHosts\org.js2at.message_broker" /ve /t REG_SZ /d "%~dp0org.js2at.message_broker-win.json" /f
 REG ADD "HKLM\Software\Google\Chrome SxS\NativeMessagingHosts\org.js2at.message_broker" /ve /t REG_SZ /d "%~dp0org.js2at.message_broker-win.json" /f
 REG ADD "HKLM\Software\Chromium\NativeMessagingHosts\org.js2at.message_broker" /ve /t REG_SZ /d "%~dp0org.js2at.message_broker-win.json" /f
-REG ADD "HKLM\Software\Mozilla\NativeMessagingHosts\org.js2at.message_broker"  /ve /t REG_SZ /d "%~dp0org.js2at.message_broker-win.json" /f
+REG ADD "HKLM\Software\Mozilla\NativeMessagingHosts\org.js2at.message_broker"  /ve /t REG_SZ /d "%~dp0org.js2at.message_broker-win.firefox.json" /f

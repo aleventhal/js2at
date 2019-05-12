@@ -3,7 +3,7 @@
   "description": "Js2at Message Broker",
   "path": "HOST_PATH",
   "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://jpgoldinadnmhfknenolkgbnockemnid/"
+  "allowed_extensions": [
+    "{110cb013-2a29-499b-b7b8-2498a46f351e}"
   ]
 }

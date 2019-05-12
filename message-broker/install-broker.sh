@@ -46,7 +46,8 @@ if [ "$(uname -s)" = "Darwin" ]; then
   cp "$DIR/$HOST_NAME.json" "$TARGET_DIR_CHROME_CANARY"
 fi
 cp "$DIR/$HOST_NAME.json" "$TARGET_DIR_CHROMIUM"
-cp "$DIR/$HOST_NAME.json" "$TARGET_DIR_FIREFOX"
+# In Firefox, use special json file
+cp "$DIR/$HOST_NAME.firefox.json" "$TARGET_DIR_FIREFOX/$HOST_NAME.json"
 
 # Update host path in the manifest.
 HOST_PATH=$DIR/message-broker.py

@@ -41,7 +41,7 @@ class AtMessaging {
   }
 
   ensureAtConnection() {
-    if (this.port && this.port.onMessage.hasListeners())
+    if (this.port)
       return true;
     this.port = isChromeVox() ?
       this.ensureExtensionConnection(kChromeVoxExtensionId, 'js2at->cvox') :
@@ -60,12 +60,16 @@ class AtMessaging {
   }
 
   sendGeneratedErrorResponse(error, docId, requestId) {
+    // Use toString() on Error type, rather than JSON.stringify, which returns {}
+    const errorString = error instanceof Error || typeof error !== 'object' ?
+      error.toString():
+      JSON.stringify(error);
     this.sendMessage({
       responseForRequestId: requestId,
       appId: Settings.getAppId(),
       docId,
       isComplete: true,
-      detail: { error: error.toString() }
+      detail: { error: errorString }
     });
   }
 

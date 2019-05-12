@@ -80,7 +80,7 @@ def Main():
   # Incorred hwnd  because the message-broker is launched by a background page:
   # parser.add_argument('--parent-window', type=int)
   parser.add_argument('--port', '-p')
-  args = parser.parse_args()
+  args, unknown = parser.parse_known_args()
   port = '18323'
   if args.port:
     port = args.port
