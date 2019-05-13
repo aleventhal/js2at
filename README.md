@@ -14,6 +14,8 @@ Js2at currently requires 4 things:
 
 The message broker passes messages back and forth between an AT and the browser.
 
+Make sure you have Python 2.x installed and use <ode>pip install zmq</code> to get the required Zmq library.
+
 On Windows, run message-broker/install-broker-win.bat
 Otherwise, run message-broker/install-broker.sh
 
