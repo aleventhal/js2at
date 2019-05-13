@@ -1,5 +1,20 @@
 #!/bin/sh
 
+if ! PYV=`python -c "import sys;t='{v[0]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)";`; then
+    echo Python is required.
+    exit 1
+fi
+
+if ! [ $PYV -eq "2" ]; then
+    echo Python 2.x is required
+    exit 1
+fi
+
+if ! pip install zmq; then
+    echo Could not install zmq library for Python, which is needed for communication.
+    exit 1
+fi
+
 set -e
 
 DIR="$( cd "$( dirname "$0" )" && pwd )"
@@ -59,6 +74,14 @@ if [ "$(uname -s)" = "Darwin" ]; then
 fi
 sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR_CHROMIUM/$HOST_NAME.json"
 sed -i -e "s/HOST_PATH/$ESCAPED_HOST_PATH/" "$TARGET_DIR_FIREFOX/$HOST_NAME.json"
+
+# Remove .json-e files created by sed.
+rm -f "$TARGET_DIR_CHROME/$HOST_NAME.json-e"
+if [ "$(uname -s)" = "Darwin" ]; then
+  rm -f "$TARGET_DIR_CHROME_CANARY/$HOST_NAME.json-e"
+fi
+rm -f "$TARGET_DIR_CHROMIUM/$HOST_NAME.json-e"
+rm -f "$TARGET_DIR_FIREFOX/$HOST_NAME.json-e"
 
 # Set permissions for the manifest so that all users can read it.
 chmod o+r "$TARGET_DIR_CHROME/$HOST_NAME.json"
