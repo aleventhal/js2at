@@ -25,6 +25,7 @@ class AtMessaging {
   }
 
   onDisconnected() {
+    console.log('AT port disconnected');
     if (browser.runtime.lastError)
       console.log(browser.runtime.lastError.message);
     this.port = null;
@@ -52,7 +53,7 @@ class AtMessaging {
       return;
     }
     if (this.port) {
-      console.log('Native port connected', this.port);
+      console.log('AT port connected', this.port);
       this.port.onMessage.addListener((request) => this.onRequest(request));
       this.port.onDisconnect.addListener(() => this.onDisconnected());
       return true;
