@@ -34,30 +34,33 @@ class AtMessaging {
   ensureNativeConnection() {
     // If no listeners, that means the native port was disconnected externally.
     const kNativeHostName = "org.js2at.message_broker";
-    return browser.runtime.connectNative(kNativeHostName);
+    const port = browser.runtime.connectNative(kNativeHostName);
+    if (browser.runtime.lastError)
+      console.log(browser.runtime.lastError);
+    else
+      return port;
   }
 
   ensureExtensionConnection(extensionId, name) {
-    return browser.runtime.connect(extensionId, { name });
+    const port = browser.runtime.connect(extensionId, { name });
+    if (browser.runtime.lastError)
+      console.log(browser.runtime.lastError);
+    else
+      return port;
   }
 
   ensureAtConnection() {
     if (this.port)
       return true;
-    this.port = isChromeVox() ?
+    this.port= isChromeVox() ?
       this.ensureExtensionConnection(kChromeVoxExtensionId, 'js2at->cvox') :
       this.ensureNativeConnection();
-
-    if (browser.runtime.lastError) {
-      console.error(browser.runtime.lastError);
+    if (!this.port)
       return;
-    }
-    if (this.port) {
-      console.log('AT port connected', this.port);
-      this.port.onMessage.addListener((request) => this.onRequest(request));
-      this.port.onDisconnect.addListener(() => this.onDisconnected());
-      return true;
-    }
+    console.log('AT port connected', this.port);
+    this.port.onMessage.addListener((request) => this.onRequest(request));
+    this.port.onDisconnect.addListener(() => this.onDisconnected());
+    return true;
   }
 
   sendGeneratedErrorResponse(error, docId, requestId) {
