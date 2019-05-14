@@ -2,7 +2,7 @@
 
 ## What is it?
 
-Js2at is a system for enabling customized web application accessibility in existing assistive technologies. It is flexible enough to enable future experiences not yet conceived of. ATs can send structured requests to a page, and asynchronously receive structured responses.
+Js2at is a system for enabling customized web application accessibility in existing assistive technologies. It is flexible enough to enable future experiences not yet conceived of. Web pages add observers for the types of structured requests they support. ATs can send conforming structured requests, and asynchronously receive structured responses.
 
 Requests and responses in Js2at must conform to a community or standard JSON schema published on the web, or they are rejected by the infrastructure. JSON schema is an IETF draft standard. For more information on JSON schema, see https://json-schema.org/specification.html.
 
