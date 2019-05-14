@@ -1,16 +1,26 @@
-# Welcome to Js2at
+# Welcome to Js2at (Javascript to Assistive Technology)
+
+## What is it?
+
+Js2at is a system for enabling customized web application accessibility in existing assistive technologies. It is flexible enough to enable future experiences not yet conceived of. ATs can send structured requests to a page, and asynchronously receive structured responses.
+
+Requests and responses in Js2at must conform to a community or standard JSON schema published on the web, or they are rejected by the infrastructure. JSON schema is an IETF draft standard. For more information on JSON schema, see https://json-schema.org/specification.html.
+
+Schema examples are provided in the schema/ directory. The process for developing or changing a request/response schema currently involves submitting a PR to the contents of that directory.
 
 ## Requirements
 
 Js2at currently requires 4 things:
-- An assistive technology, which connects to
-- Native messaging broker, which connects to
-- An extension that supports the polyfill library, which connects to
-- A web page that uses it via a polyfill library
+- An assistive technology, which uses TCP to connect to a
+- Native message broker, which connects to
+- The Js2at browser infrastructure, which connects to
+- A web page, which uses Js2atObserver to listen for and respond to Js2atRequest objects
+
+The Js2at infrastructure is currently implemented as a browser extension. In order to make use of it, web pages must currently use the included polyfills under the polyfills/ folder.
 
 ## Installation
 
-1. Install the message broker
+### 1. Install the message broker
 
 The message broker passes messages back and forth between an AT and the browser.
 
@@ -19,13 +29,11 @@ Make sure you have Python 2.x installed, Use <code>pip install zmq</code> to get
 On Windows, run message-broker/install-broker-win.bat
 Otherwise, run message-broker/install-broker.sh
 
-The message broker installer works in Firefox, but does not yet support Edge.
+Notes:
+- Browser support: the message broker is compatible with Chrome and Firefox, but does not yet support Edge.
+- Chrome OS: Js2at bypasses the message broker and communicates directly with each AT.
 
-It is not necessary or useful on Chrome OS, which will need a different
-mechanism for communicating with ATs, since they are non-native and
-essentially browser extensions.
-
-2. Install the extension
+### 2. Install the extension
 
 The extension is under ext, and can be loaded as an unpacked extension under
 chrome://extensions.
