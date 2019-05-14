@@ -2,7 +2,7 @@
 // object along with promises instead of callbacks.
 // The extension  don't actually use the promise or callback feature of any of the
 // APIs, so for now now just assign browser = chrome
-// import browser from './lib/browser-polyfill.js';
+// import browser from './third_party/ajv/browser-polyfill.js';
 // window.browser = browser
 window.browser = chrome;
 
