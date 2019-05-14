@@ -22,7 +22,7 @@
       "additionalProperties": false,
       "properties": {
         "objects": {
-          "$ref": "ref/nodeList.json"
+          "$ref": "common/nodeList.json"
         }
       }
     }
