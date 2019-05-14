@@ -4,11 +4,17 @@
 
 Js2at is an experimental system for enabling highly customized assistive technology (AT) experiences for specialized types of content, where existing approaches are insufficient. It is a general mechanism that is flexible enough to enable future experiences not yet conceived of. Web pages add observers for the types of structured requests they support. ATs can send structured requests, and asynchronously receive structured responses.
 
-While messaging passing has been generalized, the pipe only allows requests and responses that conform to standard JSON schemas. Anything that does not conform is rejected by the infrastructure, producing an error. For example, a request-response pattern can be defined by a schema to receive all the data points in a chart. If either the request or response doesn't exactly conform to the schema, the information is not passed.
+While messaging passing has been generalized, the message pipe only allows requests and responses that conform to standard JSON schemas agreed on by the community. Anything that does not conform is rejected by the infrastructure, producing an error. For example, a request-response pattern can be defined by a schema to receive all the data points in a chart. If either the request or response doesn't exactly conform to the schema, the information is not passed. The extension popup provides development settings so that new schemas can be tested.
 
-Schema examples are provided in the schema/ directory. The process for developing or changing a request/response schema currently involves submitting a PR to the contents of that directory. JSON schema is an IETF draft standard. For more information on JSON schema, see https://json-schema.org/specification.html.
+Schema examples are provided in the [schema/ directory](schema). The process for developing or changing a request/response schema currently involves submitting a PR to the contents of that directory. [JSON schema](https://json-schema.org) is an IETF draft standard.
 
-Everything in this project should be considered an experiment. Feedback is appreciated.
+## Call for contributions and feedback
+
+Everything in this project should be considered an experiment.
+
+Reviews, comments and suggestions are most welcome!
+Please read our [guidelines for contributing](CONTRIBUTING.md).
+
 
 ## Requirements
 
