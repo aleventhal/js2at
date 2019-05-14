@@ -6,7 +6,7 @@ Js2at is an experimental system for enabling highly customized assistive technol
 
 While messaging passing has been generalized, the message pipe only allows requests and responses that conform to standard JSON schemas agreed on by the community. Anything that does not conform is rejected by the infrastructure, producing an error. For example, a request-response pattern can be defined by a schema to receive all the data points in a chart. If either the request or response doesn't exactly conform to the schema, the information is not passed. The extension popup provides development settings so that new schemas can be tested.
 
-Further discussion about JSON schemas in Js2at is provided under [schema/README.md](schema/README.md).
+Further discussion about JSON schemas in Js2at is provided in the [schema folder](schema).
 
 ## Call for contributions and feedback
 
