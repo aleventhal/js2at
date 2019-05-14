@@ -2,7 +2,7 @@
 
 ## What is it?
 
-Js2at is an experimental system for enabling highly customized AT experiences for specialized types of content, where existing approaches are insufficient. It is a general mechanism that is flexible enough to enable future experiences not yet conceived of. Web pages add observers for the types of structured requests they support. ATs can send structured requests, and asynchronously receive structured responses.
+Js2at is an experimental system for enabling highly customized assistive technology (AT) experiences for specialized types of content, where existing approaches are insufficient. It is a general mechanism that is flexible enough to enable future experiences not yet conceived of. Web pages add observers for the types of structured requests they support. ATs can send structured requests, and asynchronously receive structured responses.
 
 While messaging passing has been generalized, the pipe only allows requests and responses that conform to standard JSON schemas. Anything that does not conform is rejected by the infrastructure, producing an error. For example, a request-response pattern can be defined by a schema to receive all the data points in a chart. If either the request or response doesn't exactly conform to the schema, the information is not passed.
 
