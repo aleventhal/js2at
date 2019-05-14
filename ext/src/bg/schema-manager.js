@@ -83,7 +83,7 @@ class SchemaManager {
       return Promise.reject('Page attempted to observe a schema url that contained a ? query string');
     if (!patternUrl.pathname.endsWith('.json'))
       return Promise.reject('Page attempted to observe a schema url that did not end with .json');
-    if (patternUrl.pathname.includes('/ref/'))
+    if (patternUrl.pathname.includes('/common/'))
       return Promise.reject('Page attempted to observe a schema url that should only be used as a referenced subschema via $ref');
 
     if (!this.isTrustedPatternUrl(patternUrl))
