@@ -16,7 +16,7 @@ Reviews, comments and suggestions are most welcome!
 Please read our [guidelines for contributing](CONTRIBUTING.md).
 
 
-## Requirements
+## Technical Requirements
 
 Js2at currently requires 4 layers:
 - An assistive technology, which uses a TCP port to connect to a
@@ -25,6 +25,8 @@ Js2at currently requires 4 layers:
 - A web page, which creates a Js2atObserver to listen for and respond to Js2atRequest objects
 
 The Js2at infrastructure is currently implemented as a browser extension. In order to make use of it, web pages must currently use the included polyfills under the polyfills/ folder.
+
+Browser support: the message broker is compatible with Chrome and Firefox, but does not yet support Edge.
 
 ## Installation
 
@@ -37,9 +39,7 @@ Make sure you have Python 2.x installed, Use <code>pip install zmq</code> to get
 On Windows, run message-broker/install-broker-win.bat
 Otherwise, run message-broker/install-broker.sh
 
-Notes:
-- Browser support: the message broker is compatible with Chrome and Firefox, but does not yet support Edge.
-- Chrome OS: Js2at bypasses the message broker and communicates directly with each AT.
+In Chrome OS, Js2at bypasses the message broker and communicates directly with each AT.
 
 ### 2. Install the extension
 
