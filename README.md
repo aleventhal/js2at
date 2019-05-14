@@ -12,11 +12,11 @@ Everything in this project should be considered an experiment. Feedback is appre
 
 ## Requirements
 
-Js2at currently requires 4 things:
-- An assistive technology, which uses TCP to connect to a
+Js2at currently requires 4 layers:
+- An assistive technology, which uses a TCP port to connect to a
 - Native message broker, which connects to
 - The Js2at browser infrastructure, which connects to
-- A web page, which uses Js2atObserver to listen for and respond to Js2atRequest objects
+- A web page, which creates a Js2atObserver to listen for and respond to Js2atRequest objects
 
 The Js2at infrastructure is currently implemented as a browser extension. In order to make use of it, web pages must currently use the included polyfills under the polyfills/ folder.
 
