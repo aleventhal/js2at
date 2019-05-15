@@ -96,7 +96,7 @@ function onRequest(request) {
   // Responses can be asynchronous:
   request.complete(detail);
   // or
-  request.sendOne(detail);  // Useful for multipart responses. Only available if request.multiSend is true.
+  request.sendOne(detail);  // Send partial response. Available if request.multiSend is true.
   // or
   request.error(errorDetail);
 }
