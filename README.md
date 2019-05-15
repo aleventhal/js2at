@@ -42,13 +42,13 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
         Assistive technology
         </td>
         <td>
-        <ul>
-            <li>Use a TCP port to connect to Js2at</li>
-            <li>Listen for "observerAdded" messages from content</li>
-            <li>Send requests that match the observer pattern type</li>
-            <li>Receive asynchronous responses</li>
-        </ul>
-        <p>Learn more: see provided AT examples in the <a href="./example-at">example-at/</a> folder.</p>
+            <ul style="padding-left: 1em">
+                <li>Use a TCP port to connect to Js2at</li>
+                <li>Listen for "observerAdded" messages from content</li>
+                <li>Send requests that match the observer pattern type</li>
+                <li>Receive asynchronous responses</li>
+            </ul>
+            <p>Learn more: see provided AT examples in the <a href="./example-at">example-at/</a> folder.</p>
         </td>
     </tr>
     <tr>
@@ -56,7 +56,7 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
         Js2at "traffic cop" middle layer
         </td>
         <td>
-            <ul>
+            <ul style="padding-left: 1em">
                 <li>Ensure incoming AT requests and outgoing content responses conform to schemas. If not, sends error message to AT.</li>
                 <li>The schema must be agreed on by the content and AT developers.</li>
                 <li>Route conforming AT request to appropriate Js2atObserver in content</li>
@@ -70,7 +70,7 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
         Web content
         </td>
         <td>
-            <ul>
+            <ul style="padding-left: 1em">
                 <li>Creates a Js2atObserver to listen for Js2atRequest objects.</li>
                 <li>Use Js2atRequest object to respond with a result or error (similar to a promise, but some requests can be kept open for multiple responses).</li>
             </ul>
