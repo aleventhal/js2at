@@ -94,11 +94,11 @@ function onRequest(request) {
   // Get request details from request.detail.
   
   // Responses can be asynchronous:
-  request.complete(detail);
+  request.complete(detail);  // Close request and send response if detail provided.
   // or
   request.sendOne(detail);  // Send partial response. Available if request.multiSend is true.
   // or
-  request.error(errorDetail);
+  request.error(errorDetail);  // Close response and send error.
 }
 
 function onCancel(request, isTimeout) {
