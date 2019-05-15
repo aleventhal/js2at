@@ -18,6 +18,7 @@
 <head>
 <title>Js2at demo page</title>
 <link rel="shortcut icon" href="#"> <!-- Get rid of favicon error -->
+<script type="module" src="./demo.js"></script>
 <style>
   body {
     font-family: sans-serif;
@@ -43,33 +44,8 @@
   assistive technology, using a JSON message and response system.</p>
 
   <p>This page simulates a document that is only partially loaded. More headings will be exposed to the AT than what exist on the DOM, when the AT sends the fetchAll message with role = heading. The last heading sent is called 'Magical heading that only exists in the ether'.</p>
-  <h1>Demo types<span id="demo-type-loaded"></span></h1>
-  <ul>
-    <li><a href="?polyfill=extension">Use browser extension to polyfill (Chrome works; Firefox, Edge TBD)</a></li>
-    <li><a href="?polyfill=none">Use built-in browser support (TBD)</a></li>
-  </ul>
-</div>
-<script>
-(function initPolyfillIfNecessary() {
-  const polyfill = document.location.search.match(/\?polyfill\=([a-z]+)/)[1];
-  if (polyfill === 'none') {
-    document.getElementById('demo-type-loaded').innerText = ' (built-in browser support)';
-    initDemo('./demo.js'); // TBD: use browser implementatin.
-  } else if (polyfill === 'extension') {
-    document.getElementById('demo-type-loaded').innerText = ' (extension polyfill loaded)';
-    initDemoVia('./js2at-demo-via-extension-polyfill.js');
-  } else if (document.location.search) {
-    console.error('Illegal url parameter');
-  }
-  function initDemoVia(name) {
-    const scriptElem = document.createElement('script');
-    scriptElem.src = name;
-    scriptElem.type = 'module';
-    document.querySelector('head').appendChild(scriptElem);
-  }
-})();
-</script>
-
-
+  <h1>Demo source</h1>
+  <p>Please view the <a href="https://github.com/aleventhal/js2at/blob/master/example-page/demo.js">demo.js</a> source code for a simple example of using Js2atObserver and Js2atRequest.
+  </div>
 </html>
 

@@ -34,7 +34,7 @@ The message pipe only allows requests and responses that conform to agreed-on JS
 
 ### Js2at is the traffic cop between the AT and content
 
-Js2at connects the AT to the content, directing conforming messages and rejecting everything else.
+Js2at connects the AT to the content, directing conforming messages and rejecting everything else with an error response.
 
 <table>
     <tr>

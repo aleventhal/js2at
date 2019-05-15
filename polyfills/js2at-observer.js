@@ -15,13 +15,14 @@
 /* eslint parserOptions: ["sourceType", "module"] */
 
 import Js2atUniqueIdManager from './js2at-unique-id-manager.js';
+import Js2atObserverDelegate from '../polyfills/js2at-extension-observer-delegate.js';
 
 // The callback will receive an array of Js2atRequest objects.
 export default class Js2atObserver {
-  constructor(type, onRequest, onCancel) {
-    if (type instanceof URL === false)
+  constructor(pattern, onRequest, onCancel) {
+    if (pattern instanceof URL === false)
       throw new Error('A Js2at pattern of type URL must be supplied.');
-    this.type = type;
+    this.pattern = pattern;
 
     if (typeof onRequest !== 'function')
       throw new Error('An onRequest callback must be supplied that takes a Js2atRequest object.');
@@ -33,7 +34,7 @@ export default class Js2atObserver {
 
     this.onCancel = onCancel;
 
-    const delegate = this.createDelegate(this.type, onRequest, onCancel);
+    const delegate = new Js2atObserverDelegate(pattern, onRequest, onCancel);
     this.observe = (eventTarget) => {
       delegate.observe(eventTarget);
     };
@@ -52,5 +53,3 @@ export default class Js2atObserver {
     }
   }
 }
-
-
