@@ -81,16 +81,22 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
 
 ### Quick code example
 
-Create an observer and begin observing (note: onCancel is optional):
+Create an observer and begin observing:
 
 ```js
-const myObserver = new Js2AtObserver(schemaUrl, onRequest, onCancel);  
+// Temporarily use hacky schema url location, until we have a better location:
+const kFetchAll =
+  new URL('https://raw.githack.com/aleventhal/js2at/master/schema/fetchAll.json');
+const myObserver = new Js2AtObserver(kFetchAll, onRequest, onCancel);  // onCancel is optional.
 myObserver.observe(myEventTarget);
 
 function onRequest(request) {
-  request.sendOne(detail);
-  // or
+  // Get request details from request.detail.
+  
+  // Responses can be asynchronous:
   request.complete(detail);
+  // or
+  request.sendOne(detail);  // Useful for multipart responses. Only available if request.multiSend is true.
   // or
   request.error(errorDetail);
 }
@@ -114,8 +120,8 @@ interface Js2atRequest {
   readonly bool multiSend;  // Support multiple sendOne() calls, e.g. for events.
   // Call one or more of these to fulfill requests.
   readonly callback void sendOne(any detail);  // Defined only if multiSend is true. Keeps request open so that it can be used to send more responses.
-  readonly callback void complete(any? detail);  // Send if |detail| and complete.
-  readonly callback void error(any errorDetail);  // Send error and complete.
+  readonly callback void complete(any? detail);  // Closes request, sending response if |detail| is provided.
+  readonly callback void error(any errorDetail);  // Closes request, sending error response.
 }
 ```
 
