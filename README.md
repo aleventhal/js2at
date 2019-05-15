@@ -102,7 +102,7 @@ function onRequest(request) {
 }
 
 function onCancel(request, isTimeout) {
-  // Cancel background work.
+  // Optionally cancel background work here.
 }
 ```
 
@@ -112,7 +112,7 @@ function onCancel(request, isTimeout) {
 
 A Js2atRequest is sent to the observer's onRequest method when the AT sends a valid request.
 
-```js
+```WebIDL
 interface Js2atRequest {
   readonly attribute URL pattern;
   readonly attribute EventTarget target;
@@ -129,7 +129,7 @@ interface Js2atRequest {
 
 A Js2atObserver is created by a webpage to listen for requests of a certain type. Here's what it looks like:
 
-```js
+```WebIDL
 interface Js2atObserver {
   readonly attribute URL pattern;
   readonly attribute Js2atObserverCallback onRequest;
