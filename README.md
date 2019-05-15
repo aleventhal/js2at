@@ -37,10 +37,10 @@ The message pipe only allows requests and responses that conform to agreed-on JS
 Js2at involves three layers:
 1. **Assistive technology** uses a TCP port to connect to Js2at and send requests. See provided AT examples in the [example-at/](example-at) folder.
 2. **Js2at "traffic cop" layer**
-  - Ensure incoming AT requests and and outgoing content responses conform to schemas. If not, sends error message to AT. Schema authoring guidance and examples are provided in the [schema/](schema) folder.
-  - The schema must be agreed on by the content and AT developers.
-  - Route conforming AT request to appropriate Js2atObserver in content
-  - Route conforming content responses to AT that originated the request
+   - Ensure incoming AT requests and and outgoing content responses conform to schemas. If not, sends error message to AT. Schema authoring guidance and examples are provided in the [schema/](schema) folder.
+   - The schema must be agreed on by the content and AT developers.
+   - Route conforming AT request to appropriate Js2atObserver in content
+   - Route conforming content responses to AT that originated the request
 3. **Web content**, which creates a Js2atObserver to listen for and respond to Js2atRequest objects. See provided content examples in the [example-page/](example-page) folder.
 
 ### Architecture
