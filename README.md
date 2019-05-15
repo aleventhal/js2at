@@ -32,16 +32,26 @@ Web pages add observers for the types of structured requests they support. ATs c
 
 The message pipe only allows requests and responses that conform to agreed-on JSON schemas from the [schema/](schema) folder. Anything that does not conform is rejected by the infrastructure, producing an error. For example, a request-response pattern can be defined by a schema to receive all the data points in a chart. If either the request or response doesn't exactly conform to the schema, the information is not passed. The extension popup provides development settings so that new schemas can be tested.
 
-### Js2at browser layer acts as traffic cop between the AT and content
+### Js2at is the traffic cop between the AT and content
 
-Js2at involves three layers:
-1. **Assistive technology** uses a TCP port to connect to Js2at and send requests. See provided AT examples in the [example-at/](example-at) folder.
-2. **Js2at "traffic cop" layer**
-   - Ensure incoming AT requests and and outgoing content responses conform to schemas. If not, sends error message to AT. Schema authoring guidance and examples are provided in the [schema/](schema) folder.
-   - The schema must be agreed on by the content and AT developers.
-   - Route conforming AT request to appropriate Js2atObserver in content
-   - Route conforming content responses to AT that originated the request
-3. **Web content**, which creates a Js2atObserver to listen for and respond to Js2atRequest objects. See provided content examples in the [example-page/](example-page) folder.
+Js2at connects the AT to the content, directing conforming messages and rejecting everything else.
+
+<table>
+    <tr>
+        **Assistive technology**
+        Uses a TCP port to connect to Js2at, send requests and receive asynchronous responses. See provided AT examples in the [example-at/](example-at) folder.
+    </tr>
+    <tr>
+        **Js2at "traffic cop" middle layer**
+        - Ensure incoming AT requests and and outgoing content responses conform to schemas. If not, sends error message to AT. Schema authoring guidance and examples are provided in the [schema/](schema) folder.
+        - The schema must be agreed on by the content and AT developers.
+        - Route conforming AT request to appropriate Js2atObserver in content
+        - Route conforming content responses to AT that originated the request
+    </tr>
+    <tr>
+        **Web content**, which creates a Js2atObserver to listen for and respond to Js2atRequest objects. See provided content examples in the [example-page/](example-page) folder.
+    </tr>
+</table>
 
 ### Architecture
 
