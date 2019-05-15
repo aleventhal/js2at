@@ -40,7 +40,7 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
     <tr>
         <td>
             <p>Assistive technology</p>
-            <p>See <a href="./example-at">example-at/</a>.</p>
+            <p>See <a href="./example-at">example-at/</a></p>
         </td>
         <td>
         <ul>
@@ -54,7 +54,7 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
     <tr>
         <td>
             <p>Js2at "traffic cop" middle layer</p>
-            <p>Schema examples under <a href="./schema">schema/</a>.</p>
+            <p>See <a href="./schema">schema/</a></p>
         </td>
         <td>
             <ul>
@@ -68,8 +68,7 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
     <tr>
         <td>
             <p>Web content</p>
-            <p>See <a href="./example-page">example-page/</a>.
-            </p>
+            <p>See <a href="./example-page">example-page/</a></p>
         </td>
         <td>
             <ul>
