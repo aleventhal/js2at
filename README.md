@@ -36,20 +36,33 @@ The message pipe only allows requests and responses that conform to agreed-on JS
 
 Js2at connects the AT to the content, directing conforming messages and rejecting everything else.
 
-<table>
+<table>    
     <tr>
+        <td>
         **Assistive technology**
+        </td>
+        <td>
         Uses a TCP port to connect to Js2at, send requests and receive asynchronous responses. See provided AT examples in the [example-at/](example-at) folder.
+        </td>
     </tr>
     <tr>
+        <td>
         **Js2at "traffic cop" middle layer**
+        </td>
+        <td>
         - Ensure incoming AT requests and and outgoing content responses conform to schemas. If not, sends error message to AT. Schema authoring guidance and examples are provided in the [schema/](schema) folder.
         - The schema must be agreed on by the content and AT developers.
         - Route conforming AT request to appropriate Js2atObserver in content
         - Route conforming content responses to AT that originated the request
+        </td>
     </tr>
     <tr>
-        **Web content**, which creates a Js2atObserver to listen for and respond to Js2atRequest objects. See provided content examples in the [example-page/](example-page) folder.
+        <td>
+        **Web content**
+        </td>
+        <td>
+        Creates a Js2atObserver to listen for and respond to Js2atRequest objects. See provided content examples in the [example-page/](example-page) folder.
+        </td>
     </tr>
 </table>
 
