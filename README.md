@@ -79,6 +79,63 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
     </tr>
 </table>
 
+### Quick code example
+
+Create an observer and begin observing (note: onCancel is optional):
+
+```js
+const myObserver = new Js2AtObserver(schemaUrl, onRequest, onCancel);  
+myObserver.observe(myEventTarget);
+
+function onRequest(request) {
+  request.sendOne(detail);
+  // or
+  request.complete(detail);
+  // or
+  request.error(errorDetail);
+}
+
+function onCancel(request, isTimeout) {
+  // Cancel background work.
+}
+```
+
+### Types imported by polyfill
+
+#### Js2atRequest
+
+A Js2atRequest is sent to the observer's onRequest method when the AT sends a valid request.
+
+```js
+interface Js2atRequest {
+  readonly attribute URL pattern;
+  readonly attribute EventTarget target;
+  readonly attribute any detail;
+  readonly bool multiSend;  // Support multiple sendOne() calls, e.g. for events.
+  // Call one or more of these to fulfill requests.
+  readonly callback void sendOne(any detail);  // Defined only if multiSend is true. Keeps request open so that it can be used to send more responses.
+  readonly callback void complete(any? detail);  // Send if |detail| and complete.
+  readonly callback void error(any errorDetail);  // Send error and complete.
+}
+```
+
+#### Js2atObserver
+
+A Js2atObserver is created by a webpage to listen for requests of a certain type. Here's what it looks like:
+
+```js
+interface Js2atObserver {
+  readonly attribute URL pattern;
+  readonly attribute Js2atObserverCallback onRequest;
+  readonly attribute Js2atObserverCallback onCancel;
+  void observe(EventTarget target);
+  void unobserve(EventTarget target);
+  void disconnect();
+  // TODO: Do we need takeRecords()? Fits observer pattern but not that useful.
+  void takeRecords([Js2atRequest]);
+}
+```
+
 ### Architecture
 
 The Js2at infrastrastructure is currently implemented as:

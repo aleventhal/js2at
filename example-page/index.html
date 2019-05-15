@@ -44,6 +44,49 @@
   assistive technology, using a JSON message and response system.</p>
 
   <p>This page simulates a document that is only partially loaded. More headings will be exposed to the AT than what exist on the DOM, when the AT sends the fetchAll message with role = heading. The last heading sent is called 'Magical heading that only exists in the ether'.</p>
+  <h1>Js2atObserver</h1>
+  <p>A Js2atObserver is created by a webpage to listen for requests of a certain type:</p>
+<code style="white-space: pre">interface Js2atObserver {
+  readonly attribute URL pattern;
+  readonly attribute Js2atObserverCallback onRequest;
+  readonly attribute Js2atObserverCallback onCancel;
+  void observe(EventTarget target);
+  void unobserve(EventTarget target);
+  void disconnect();
+  // TODO: Do we need takeRecords()? Fits observer pattern but not that useful.
+  void takeRecords([Js2atRequest]);
+}
+
+const myObserver = new Js2AtObserver(schemaUrl, onRequest, onCancel);  // onCancel is optional.
+</code>
+
+  <h1>Js2atRequest</h1>
+  <p>A Js2atRequest is sent to the observer's onRequest method when the AT sends a valid request.</p>
+
+<code style="white-space: pre">interface Js2atRequest {
+  readonly attribute URL pattern;
+  readonly attribute EventTarget target;
+  readonly attribute any detail;
+  readonly bool multiSend;  // Support multiple sendOne() calls, e.g. for events.
+  // Call one or more of these to fulfill requests.
+  readonly callback void sendOne(any detail);  // Defined only if multiSend is true. Keeps request open so that it can be used to send more responses.
+  readonly callback void complete(any? detail);  // Send if |detail| and complete.
+  readonly callback void error(any errorDetail);  // Send error and complete.
+}
+
+function onRequest(request) {
+  request.sendOne(detail);
+  // or
+  request.complete(detail);
+  // or
+  request.error(errorDetail);
+}
+
+function onCancel(request, isTimeout) {
+  // Cancel background work.
+}
+</code>
+
   <h1>Demo source</h1>
   <p>Please view the <a href="https://github.com/aleventhal/js2at/blob/master/example-page/demo.js">demo.js</a> source code for a simple example of using Js2atObserver and Js2atRequest.
   </div>
