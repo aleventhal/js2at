@@ -39,29 +39,35 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
 <table>    
     <tr>
         <td>
-        **Assistive technology**
+        Assistive technology
         </td>
         <td>
-        Uses a TCP port to connect to Js2at, send requests and receive asynchronous responses. See provided AT examples in the [example-at/](example-at) folder.
-        </td>
-    </tr>
-    <tr>
-        <td>
-        **Js2at "traffic cop" middle layer**
-        </td>
-        <td>
-        - Ensure incoming AT requests and and outgoing content responses conform to schemas. If not, sends error message to AT. Schema authoring guidance and examples are provided in the [schema/](schema) folder.
-        - The schema must be agreed on by the content and AT developers.
-        - Route conforming AT request to appropriate Js2atObserver in content
-        - Route conforming content responses to AT that originated the request
+        <p>Uses a TCP port to connect to Js2at, send requests and receive asynchronous responses.</p>
+        <p>Learn more: see provided AT examples in the <a href="./example-at">example-at/</a> folder.</p>
         </td>
     </tr>
     <tr>
         <td>
-        **Web content**
+        Js2at "traffic cop" middle layer
         </td>
         <td>
-        Creates a Js2atObserver to listen for and respond to Js2atRequest objects. See provided content examples in the [example-page/](example-page) folder.
+            <ul>
+                <li>Ensure incoming AT requests and and outgoing content responses conform to schemas. If not, sends error message to AT.</li>
+                <li>The schema must be agreed on by the content and AT developers.</li>
+                <li>Route conforming AT request to appropriate Js2atObserver in content</li>
+                <li>Route conforming content responses to AT that originated the request</li>
+            </ul>
+            <p>Learn more: schema authoring guidance and examples are provided in the <a href="./schema">schema/</a> folder.</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+        Web content
+        </td>
+        <td>
+            <p>Creates a Js2atObserver to listen for and respond to Js2atRequest objects.</p>
+            <p>Learn more: See provided content examples in the <a href="./example-page">example-page/</a> folder.
+            </p>
         </td>
     </tr>
 </table>
