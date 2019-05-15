@@ -36,13 +36,11 @@ The message pipe only allows requests and responses that conform to agreed-on JS
 
 Js2at connects the AT to the content, directing conforming messages and rejecting everything else.
 
-<style>
-    td > ul { padding-left: 1em; }
-</style>
 <table>
     <tr>
         <td>
-        Assistive technology
+            <p>Assistive technology</p>
+            <p>See example under <a href="./example-at">example-at/</a>.</p>
         </td>
         <td>
         <ul>
@@ -51,12 +49,12 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
             <li>Send requests that match the observer pattern type</li>
             <li>Receive asynchronous responses</li>
         </ul>
-        <p>Learn more: see provided AT examples in the <a href="./example-at">example-at/</a> folder.</p>
         </td>
     </tr>
     <tr>
         <td>
-        Js2at "traffic cop" middle layer
+            <p>Js2at "traffic cop" middle layer</p>
+            <p>Schema examples under <a href="./schema">schema/</a> folder.</p>
         </td>
         <td>
             <ul>
@@ -65,20 +63,19 @@ Js2at connects the AT to the content, directing conforming messages and rejectin
                 <li>Route conforming AT request to appropriate Js2atObserver in content</li>
                 <li>Route conforming content responses to AT that originated the request</li>
             </ul>
-            <p>Learn more: schema authoring guidance and examples are provided in the <a href="./schema">schema/</a> folder.</p>
         </td>
     </tr>
     <tr>
         <td>
-        Web content
+            <p>Web content</p>
+            <p>See examples under <a href="./example-page">example-page/</a> folder.
+            </p>
         </td>
         <td>
             <ul>
                 <li>Creates a Js2atObserver to listen for Js2atRequest objects.</li>
                 <li>Use Js2atRequest object to respond with a result or error (similar to a promise, but some requests can be kept open for multiple responses).</li>
             </ul>
-            <p>Learn more: See provided content examples in the <a href="./example-page">example-page/</a> folder.
-            </p>
         </td>
     </tr>
 </table>
