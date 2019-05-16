@@ -31,7 +31,8 @@ class AtMessaging {
   }
 
   sendMessage(message) {
-    console.assert(this.port);
+    if (!this.port)
+      throw new Error('No port to send AT messages to');
     console.log('Sending to AT', message);
     if (message.isComplete)
       RequestManager.closeRequest(message.docId, message.responseForRequestId);
