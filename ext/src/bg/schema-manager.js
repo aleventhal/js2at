@@ -21,6 +21,8 @@ class SchemaManager {
   }
 
   isTrustedPatternUrl(patternUrl) {
+    if (Settings.getValidation() === 'none')
+      return true;
     switch (Settings.getApiFilter()) {
       case 'community':
         if (patternUrl.hostname === 'raw.githack.com' &&
@@ -48,10 +50,6 @@ class SchemaManager {
 
     console.log('Load Js2at schema for: ', pattern);
     async function fetchIt() {
-      if (Settings.getValidation() === 'none') {
-        // No validation -- return empty schema, which was always validate.
-        return true;
-      }
       const response = await fetch(patternUrl);
       if (response.status !== 200)
         return Promise.reject('Status error ' + response.status + ' loading ' + patternUrl);
@@ -69,7 +67,12 @@ class SchemaManager {
 
   // Pre-compile the pattern, recursively loading and compiling sub-schemas.
   async preparePattern(pattern) {
-    if (this.hasPattern(pattern))
+    if (Settings.getValidation() === 'none') {
+      this.preparedPatterns.add(pattern);
+      return;
+    }
+
+    if (this.hasPattern(pattern) && this.ajv.getSchema(pattern))
       return;
 
     // May not be desirable to notify AT that the page attempted to use an
@@ -99,11 +102,14 @@ class SchemaManager {
   }
 
   async validate(schemaUrl, data) {
+    if (Settings.getValidation() === 'none')
+      return true;
+
     await this.loadSchema(schemaUrl);
 
     const validationResult = this.ajv.validate(schemaUrl, data);
     if (!validationResult) {
-      if (Settings.getValidation() == 'reject')
+      if (Settings.getValidation() === 'reject')
         return Promise.reject(this.ajv.errors);
       else
         console.error('Schema errors', this.ajv.errors);
