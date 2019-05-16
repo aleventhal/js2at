@@ -20,8 +20,8 @@ import Js2atObserverDelegate from '../polyfills/js2at-extension-observer-delegat
 // The callback will receive an array of Js2atRequest objects.
 export default class Js2atObserver {
   constructor(pattern, onRequest, onCancel) {
-    if (pattern instanceof URL === false)
-      throw new Error('A Js2at pattern of type URL must be supplied.');
+    if (typeof pattern !== 'string' && pattern instanceof URL === false)
+      throw new Error('A Js2at pattern of type URL or string must be supplied.');
     this.pattern = pattern;
 
     if (typeof onRequest !== 'function')

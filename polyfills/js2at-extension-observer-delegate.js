@@ -98,8 +98,7 @@ export default class Js2atObserverDelegate {
       this.onRequest(js2atRequest);
     };
 
-    console.assert(pattern instanceof URL);
-    this.pattern = pattern.toString();  // Convert URL to serializable string.
+    this.pattern = pattern.toString();  // Ensure serializable (in case URL).
     this.onRequest = onRequest;
     this.onCancel = onCancel;
     this.ports = new WeakMap(); // Map from event target to port

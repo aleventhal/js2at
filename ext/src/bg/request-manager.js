@@ -43,7 +43,6 @@ class RequestManager {
   }
 
   closeRequest(docId, requestId) {
-    console.assert(this.openRequests[docId]);
     if (!this.openRequests[docId])
       return;
     const request = this.openRequests[docId][requestId];

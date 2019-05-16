@@ -12,7 +12,8 @@
     },
     "pattern": {
       "description": "A url that defines requests and responses",
-      "type": "string"
+      "type": "string",
+      "format": "url"
     },
     "appId": {
       "description": "An automatically populated id corresponding to the host browser or other application serving the content",
