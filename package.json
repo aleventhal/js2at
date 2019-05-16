@@ -1,0 +1,20 @@
+{
+  "name": "js2at",
+  "version": "0.0.3",
+  "description": "Js2at accessibility experience prototyping tools",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aleventhal/js2at.git"
+  },
+  "keywords": [
+    "accessibility"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/aleventhal/js2at/issues"
+  },
+  "homepage": "https://github.com/aleventhal/js2at#readme"
+}
