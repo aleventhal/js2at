@@ -32,8 +32,15 @@ function caret(request) {
       return;
     }
 
-    const [top, left, right, bottom] = selection.getRangeAt(0).getBoundingClientRect();
-    request.sendOne({ carets: { top, left, right, bottom } });
+    const bounds = selection.getRangeAt(0).getBoundingClientRect();
+    request.sendOne({
+      carets: {
+        top: bounds.top,
+        left: bounds.left,
+        width: bounds.width,
+        height: bounds.height,
+      }
+    });
   });
 }
 

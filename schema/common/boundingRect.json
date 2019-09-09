@@ -7,8 +7,8 @@
   "required": [
     "top",
     "left",
-    "bottom",
-    "right"
+    "width",
+    "height"
   ],
   "properties": {
     "top": {
@@ -17,10 +17,10 @@
     "left": {
       "type": "number"
     },
-    "bottom": {
+    "width": {
       "type": "number"
     },
-    "right": {
+    "height": {
       "type": "number"
     }
   }
