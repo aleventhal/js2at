@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // This demonstrates the ability to serve back all headings in a document that
-// is on;y partially loaded.
+// is only partially loaded.
 
 import Js2atObserver from '../polyfills/js2at-observer.js';
 import Js2atUniqueIdManager from '../polyfills/js2at-unique-id-manager.js';
@@ -39,7 +39,7 @@ function fetchAll(request) {
     const objects = [];
 
     // Add the actual headings from the page.
-    for (let index = 0; index < headings.length; index ++) {
+    for (let index = 0; index < headings.length; index++) {
       const heading = headings[index];
       objects.push({
         role: 'heading',
