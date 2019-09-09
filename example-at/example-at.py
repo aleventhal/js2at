@@ -87,6 +87,18 @@ def exchange_broker_messages_thread_func(messages_to_broker, timers, ids, port):
         # socket = context.socket(zmq.PAIR)
         # socket.bind(address)
 
+def get_caret_request():
+  global requestId
+  requestId += 1
+  return {
+    'requestId': str(requestId),
+    'pattern': 'https://raw.githack.com/aleventhal/js2at/master/schema/caret.json',
+     'appId': ids['appId'],
+    'docId': ids['docId'],
+    'uid': '1',
+    'detail': {},
+    'multiSend': True
+  }
 
 def get_role_request(role):
   global requestId
@@ -133,6 +145,7 @@ def Main():
   print("""\
   Instructions, type any of the following and press Enter.
   [arbitrary JSON]               Send as request
+  c                              Stream caret locations
   h                              Request all headings
   p                              Request all paragraphs
   z                              Request all zebras (will return error)
@@ -154,6 +167,8 @@ def Main():
       request = get_role_request('paragraph')
     elif inp[:1] == 'z':
       request = get_role_request('zebra')
+    elif inp[:1] == 'c':
+      request = get_caret_request()
     elif inp[:1] == '$':
       request = get_ping_request()
     elif inp[:1] == '{':
