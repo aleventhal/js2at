@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githack.com/aleventhal/js2at/master/schema/caret.json",
+  "description": "Request all caret locations",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "maxProperties": 1,
+  "properties": {
+    "request": {},
+    "response": {
+      "type": "object",
+      "required": [
+        "carets"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "carets": {
+          "$ref": "common/boundingRect.json"
+        }
+      }
+    }
+  }
+}

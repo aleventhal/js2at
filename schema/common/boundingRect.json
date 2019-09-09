@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githack.com/aleventhal/js2at/master/schema/common/boundingRect.json",
+  "title": "node",
+  "description": "The bounding rect for an element",
+  "type": "object",
+  "required": [
+    "top",
+    "left",
+    "bottom",
+    "right"
+  ],
+  "properties": {
+    "top": {
+      "type": "number"
+    },
+    "left": {
+      "type": "number"
+    },
+    "bottom": {
+      "type": "number"
+    },
+    "right": {
+      "type": "number"
+    }
+  }
+}
